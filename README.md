@@ -383,9 +383,7 @@ O sistema possui três níveis de permissão:
 
 ## 🔑 Credenciais de Teste
 
-> **Importante**: Após implementar o sistema de autenticação, adicione aqui as credenciais de usuários de teste para cada tipo de permissão.
-
-Exemplo:
+> **✅ Credenciais implementadas e funcionando:**
 
 ```
 Admin:
@@ -400,6 +398,22 @@ Member:
   Email: member@vituax.com
   Senha: Member@123
 ```
+
+### Usuários de MSP (BrandMaster):
+
+```
+MSP Admin:
+  Email: msp.admin@empresa.com
+  Senha: MspAdmin@123
+  BrandMaster: Tech Solutions Ltda
+
+MSP Manager:
+  Email: msp.manager@empresa.com
+  Senha: MspManager@123
+  BrandMaster: Tech Solutions Ltda
+```
+
+> **Nota**: Após rodar `npx prisma migrate reset`, os usuários acima serão criados automaticamente pelo seed.
 
 ---
 
