@@ -1,57 +1,53 @@
-import { Stack } from "@mui/material";
-import { MainLoginForm } from "./components/MainLoginForm";
-import { useZTheme } from "../../stores/useZTheme";
-import { DisplayCarousel } from "./components/DisplayCarousel";
-import { useWindowSize } from "../../hooks/useWindowSize";
+import { Box, Paper, Typography, useTheme, Zoom } from "@mui/material";
+import { LoginForm } from "./LoginForm";
 
 export const LoginPage = () => {
-  const { mode } = useZTheme();
-  const { width, height } = useWindowSize();
+  const theme = useTheme();
 
   return (
-    <Stack
+    <Box
       sx={{
-        height,
-        width,
-        overflowY: "auto",
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
         alignItems: "center",
-        flexDirection: "row",
         justifyContent: "center",
-        background:
-          mode === "light"
-            ? "linear-gradient(117deg, #FFF 39.68%, var(--c1, #F9F9F9) 100%);"
-            : "linear-gradient(117deg, var(--c6, #252930) 39.61%, var(--alt-gray, #181B20) 100%);",
+        background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.background.default} 100%)`,
+        backgroundSize: "400% 400%",
+        animation: "gradient 15s ease infinite",
+        "@keyframes gradient": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
       }}
     >
-      {/* Login box */}
-      <Stack
-        sx={{
-          width: "100%",
-          padding: "16px",
-          maxWidth: "700px",
-          height: "100%",
-          alignItems: "center",
-        }}
-      >
-        {/* Main form */}
-        <MainLoginForm />
-      </Stack>
-      {/* Carousel */}
-      <Stack
-        sx={{
-          width: "100%",
-          height: "100%",
-          maxWidth: "900px",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "16px",
-          "@media (max-width: 1000px)": {
-            display: "none",
-          },
-        }}
-      >
-        <DisplayCarousel />
-      </Stack>
-    </Stack>
+      <Zoom in={true} style={{ transitionDelay: '300ms' }}>
+        <Paper
+          elevation={24}
+          sx={{
+            padding: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
+            maxWidth: 400,
+            borderRadius: 4,
+            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(20, 20, 30, 0.7)' : 'rgba(255, 255, 255, 0.8)',
+            backdropFilter: "blur(10px)",
+            border: `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ color: theme.palette.primary.main }}>
+            TestTecVix
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+            Sign in to your account
+          </Typography>
+
+          <LoginForm />
+        </Paper>
+      </Zoom>
+    </Box>
   );
 };
