@@ -18,8 +18,25 @@ import { PasswordValidations } from "./PasswordValidations";
 import { useZVMSugestion } from "../../../stores/useZVMSugestion";
 import { ENetworkType } from "../../../types/VMTypes";
 import { AbsoluteBackDrop } from "../../../components/AbsoluteBackDrop";
-import { BTNISOsSection } from "./BTNISOsSection";
 import { useZVM } from "../../../stores/useZVM";
+
+// Lista de sistemas operacionais disponíveis
+const osOptions = [
+  { label: "Ubuntu 22.04 LTS", value: "ubuntu-22.04" },
+  { label: "Ubuntu 20.04 LTS", value: "ubuntu-20.04" },
+  { label: "Debian 12", value: "debian-12" },
+  { label: "Debian 11", value: "debian-11" },
+  { label: "CentOS 9 Stream", value: "centos-9" },
+  { label: "Rocky Linux 9", value: "rocky-9" },
+  { label: "AlmaLinux 9", value: "alma-9" },
+  { label: "Windows Server 2022", value: "windows-server-2022" },
+  { label: "Windows Server 2019", value: "windows-server-2019" },
+  { label: "Windows 11 Pro", value: "windows-11" },
+  { label: "Windows 10 Pro", value: "windows-10" },
+  { label: "Fedora 39", value: "fedora-39" },
+  { label: "openSUSE Leap 15.5", value: "opensuse-15.5" },
+  { label: "Arch Linux", value: "arch-linux" },
+];
 
 export const FormVM = () => {
   const { t } = useTranslation(); // createVm
@@ -225,7 +242,13 @@ export const FormVM = () => {
             value={vmLocalization}
             onChange={setVmLocalization}
           />
-          <BTNISOsSection vmNameLabel={vmSO?.label} />
+          <DropDowText
+            label={t("createVm.operationalSystem")}
+            data={osOptions}
+            value={vmSO}
+            onChange={setVmSO}
+            placeholder={t("createVm.selectOS")}
+          />
         </Stack>
         {/* Sliders */}
         <Stack

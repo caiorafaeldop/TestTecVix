@@ -1,9 +1,7 @@
 import { Router } from "express";
 import { VMController } from "../controllers/VMController";
 import { API_VERSION, ROOT_PATH } from "../constants/basePathRoutes";
-// import { isManagerOrIsAdmin } from "../authUser/isManagerOrIsAdmin";
-// import { isAdmin } from "../authUser/isAdmin";
-// import { authUser } from "../auth/authUser";
+import { authMiddleware, authorizeRole } from "../middlewares/authMiddleware";
 
 const BASE_PATH = API_VERSION.V1 + ROOT_PATH.VM; // /api/v1/vm
 
@@ -18,14 +16,15 @@ const vMController = makeVMController();
 // ========= GETs =========
 vMRoutes.get(
   BASE_PATH,
-  // authUser,
+  authMiddleware,
   async (req, res) => {
     await vMController.listAll(req, res);
   },
 );
 
 vMRoutes.get(
-  `${BASE_PATH}/:idVM`, // authUser,
+  `${BASE_PATH}/:idVM`,
+  authMiddleware,
   async (req, res) => {
     await vMController.getById(req, res);
   },
@@ -33,8 +32,9 @@ vMRoutes.get(
 
 // ========= POSTs =========
 vMRoutes.post(
-  BASE_PATH, // authUser,
-  // isManagerOrIsAdmin,
+  BASE_PATH,
+  authMiddleware,
+  authorizeRole(['admin', 'manager']),
   async (req, res) => {
     await vMController.createVM(req, res);
   },
@@ -44,9 +44,8 @@ vMRoutes.post(
 
 vMRoutes.put(
   `${BASE_PATH}/:idVM`,
-  //authUser,
-
-  //isManagerOrIsAdmin,
+  authMiddleware,
+  authorizeRole(['admin', 'manager']),
   async (req, res) => {
     await vMController.updateVM(req, res);
   },
@@ -54,8 +53,9 @@ vMRoutes.put(
 
 // ======== DELETEs ========
 vMRoutes.delete(
-  `${BASE_PATH}/:idVM`, //authUser,
-  //isAdmin,
+  `${BASE_PATH}/:idVM`,
+  authMiddleware,
+  authorizeRole(['admin']),
   async (req, res) => {
     await vMController.deleteVM(req, res);
   },

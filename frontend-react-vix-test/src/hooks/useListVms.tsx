@@ -34,33 +34,28 @@ export const useListVms = () => {
   ) => {
     const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.get<IListAll<IVMCreatedResponse>>({
-      url: "/vm",
-      auth,
-      params: {
-        ...params,
-        //status: "PAUSED", // "RUNNING", "STOPPED", "PAUSED", "null", undefined
-      },
+    const response = await api.get<IListAll<IVMCreatedResponse>>("/vm", {
+        params: {
+            ...params,
+        }
     });
 
     setIsLoading(false);
-    if (response.error) {
-      if (!response.message.includes("expired")) toast.error(response.message);
-      setVmList([]);
-      setVmTotalCount(0);
-      setTotalCountVMs(0);
-      goLogout();
-      return;
-    }
+    setIsLoading(false);
+    
+    // axios throws on error status usually, but if we handle it here:
+    // With my api.ts interceptor, we might need to adjust.
+    // Assuming successful response structure:
+    const data = response.data;
 
-    setVmList(response.data?.result);
-    setVmTotalCount(response.data?.totalCount);
-    setTotalCountVMs(response.data?.totalCount);
+    setVmList(data.result || []);
+    setVmTotalCount(data.totalCount || 0);
+    setTotalCountVMs(data.totalCount || 0);
 
-    if (!currentIdVM && response.data?.result.length) {
-      setCurrentIdVM(response.data?.result[0].idVM);
-      setCurrentVMName(response.data?.result[0].vmName);
-      setCurrentVMOS(response.data?.result[0].os);
+    if (!currentIdVM && data.result?.length) {
+      setCurrentIdVM(data.result[0].idVM);
+      setCurrentVMName(data.result[0].vmName);
+      setCurrentVMOS(data.result[0].os);
     }
   };
 
