@@ -108,4 +108,16 @@ export class BrandMasterService {
       brandMaster: deletedBrand,
     };
   }
+  async updateLogo(idBrandMaster: number, logoPath: string) {
+    const oldBrandMaster = await this.brandMasterModel.getById(idBrandMaster);
+    if (!oldBrandMaster) {
+      throw new AppError(
+        ERROR_MESSAGE.BRAND_MASTER_NOT_FOUND,
+        STATUS_CODE.NOT_FOUND,
+      );
+    }
+    return this.brandMasterModel.updateBrandMaster(idBrandMaster, {
+      brandLogo: logoPath,
+    });
+  }
 }
