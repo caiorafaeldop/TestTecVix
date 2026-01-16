@@ -57,7 +57,9 @@ model vM {
   vCPU          Int
   ram           Int
   disk          Int
-  hasBackup     Boolean?     @default(false)
+  hasBackup     Boolean?       @default(false)
+  pass          String?
+  location      ETaskLocation?
   idBrandMaster Int?
   status        EVMStatus?
   createdAt     DateTime?    @default(now()) @db.DateTime(0)
@@ -98,4 +100,11 @@ enum ERole {
   admin
   manager
   member
+}
+
+enum ETaskLocation {
+  BR_SAO_PAULO
+  US_EAST_N_VIRGINIA
+  US_WEST_N_CALIFORNIA
+  EU_WEST_IRELAND
 }
