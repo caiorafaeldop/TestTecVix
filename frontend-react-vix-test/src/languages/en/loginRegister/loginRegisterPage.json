@@ -1,5 +1,7 @@
 {
   "access": "Access your account",
+  "dontHaveAccount": "Don't have an account?",
+  "alreadyHaveAccount": "Already have an account?",
   "register": "Register a new account",
   "email": "E-mail",
   "password": "Password",

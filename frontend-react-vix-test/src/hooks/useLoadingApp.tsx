@@ -13,22 +13,17 @@ export const useLoadingApp = (notLoginPage: boolean = false) => {
 
   const fetchTheme = async () => {
     setLoading(true);
-    const theme = await api.get<IBrandMasterResponse | null>({
-      url: "/brand-master/self",
-    });
+    try {
+      const { data } = await api.get<IBrandMasterResponse>("/brand-master/self");
 
-    if (theme.error) {
-      toast.error(theme.message);
-      return setLoading(false);
-    }
-
-    if (!theme.data) {
+      if (data) {
+        setBrandInfos(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch theme:", error);
+    } finally {
       setLoading(false);
-      if (notLoginPage) return;
-      return;
     }
-    await setBrandInfos(theme.data);
-    setLoading(false);
   };
 
   useEffect(() => {

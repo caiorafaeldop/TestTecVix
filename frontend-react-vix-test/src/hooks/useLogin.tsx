@@ -20,6 +20,7 @@ interface IUserLoginResponse {
     updatedAt: string | Date;
     username: string;
     userPhoneNumber: string | null;
+    fullName: string | null;
   };
 }
 
@@ -47,37 +48,37 @@ export const useLogin = () => {
       return;
     }
 
-    const response = await api.post<IUserLoginResponse>({
-      url: "/user/login",
-      data: {
+    try {
+      const response = await api.post<IUserLoginResponse>("/user/login", {
         username: username || undefined,
         password,
         email: email || undefined,
-      },
-      tryRefetch: true,
-    });
+      });
 
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
-      return;
-    }
-    if (!response.data.user?.isActive) {
-      setIsOpenModalUserNotActive(true);
-      return;
-    }
+      if (!response.data.user?.isActive) {
+        setIsOpenModalUserNotActive(true);
+        return;
+      }
 
-    setUser({
-      idUser: response.data.user.idUser,
-      profileImgUrl: response.data.user.profileImgUrl,
-      username: response.data.user.username,
-      userEmail: response.data.user.email,
-      idBrand: response.data.user.idBrandMaster,
-      token: response.data.token,
-      role: response.data.user.role,
-      userPhoneNumber: response.data.user.userPhoneNumber,
-    });
-    setLoginTime(new Date());
+      setUser({
+        idUser: response.data.user.idUser,
+        profileImgUrl: response.data.user.profileImgUrl,
+        username: response.data.user.username,
+        userEmail: response.data.user.email,
+        idBrand: response.data.user.idBrandMaster,
+        token: response.data.token,
+        role: response.data.user.role,
+        userPhoneNumber: response.data.user.userPhoneNumber,
+        fullName: response.data.user.fullName,
+      });
+      setLoginTime(new Date());
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Erro ao realizar login"
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const goLogout = () => {

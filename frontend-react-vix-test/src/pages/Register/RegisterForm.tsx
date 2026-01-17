@@ -7,7 +7,8 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
-import { Visibility, VisibilityOff, Email, Lock, Person } from "@mui/icons-material";
+import { VisibilityOn, VisibilityOff } from "../../icons/Visibility";
+import { Email, Lock, Person } from "@mui/icons-material";
 import { authService } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -18,6 +19,7 @@ export const RegisterForm = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -100,7 +102,7 @@ export const RegisterForm = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 edge="end"
               >
-                {showPassword ? <VisibilityOff /> : <Visibility />}
+                {showPassword ? <VisibilityOff /> : <VisibilityOn />}
               </IconButton>
             </InputAdornment>
           ),
@@ -111,7 +113,7 @@ export const RegisterForm = () => {
         variant="outlined"
         fullWidth
         margin="normal"
-        type={showPassword ? "text" : "password"}
+        type={showConfirmPassword ? "text" : "password"}
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
         required
@@ -119,6 +121,16 @@ export const RegisterForm = () => {
           startAdornment: (
              <InputAdornment position="start">
               <Lock color="action" />
+            </InputAdornment>
+          ),
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                edge="end"
+              >
+                {showConfirmPassword ? <VisibilityOff /> : <VisibilityOn />}
+              </IconButton>
             </InputAdornment>
           ),
         }}

@@ -11,12 +11,10 @@ export const useAuth = () => {
 
   const fetchNewUserToken = async () => {
     if (!idUser) return "";
-    const response = await api.get<{ token: string | null }>({
-      url: `/user/token/${idUser}`,
-      auth: { Authorization: `Bearer ${token}` },
-      tryRefetch: true,
-    });
-    if (response.error || !response.data.token) {
+    const response = await api.get<{ token: string | null }>(
+      `/user/token/${idUser}`,
+    );
+    if (!response.data.token) {
       return "";
     }
 
