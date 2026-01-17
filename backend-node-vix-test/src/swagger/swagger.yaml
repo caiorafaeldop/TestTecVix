@@ -1,16 +1,1603 @@
 openapi: 3.0.3
 info:
-  title: API CLOUD
+  title: API Cloud - Sistema de Gerenciamento de VMs
+  description: |
+    ## Documentação completa da API Cloud
+    
+    Esta API fornece endpoints para gerenciamento de:
+    - **Autenticação** - Login e registro de usuários
+    - **Usuários** - CRUD completo de usuários do sistema
+    - **BrandMaster (MSP)** - Gerenciamento de organizações/MSPs
+    - **VMs** - Criação e gerenciamento de Máquinas Virtuais
+    - **Uploads** - Gerenciamento de arquivos e imagens
+    
+    ### Autenticação
+    A maioria dos endpoints requer autenticação via Bearer Token JWT.
+    Após fazer login, inclua o token no header `Authorization: Bearer <token>`.
+    
+    ### Roles (Papéis)
+    - **admin** - Acesso total ao sistema
+    - **manager** - Pode gerenciar usuários e VMs
+    - **member** - Acesso básico de leitura
+    
   version: 1.0.0
-  contact: {}
+  contact:
+    name: API Cloud Support
+    email: suporte@apicloud.com
+
 servers:
-  - url: "{{url}}"
+  - url: http://localhost:3001
+    description: Servidor Local de Desenvolvimento
+  - url: https://api.cloud.com
+    description: Servidor de Produção
+
+tags:
+  - name: Auth
+    description: Endpoints de autenticação (login e registro)
+  - name: User
+    description: Gerenciamento de usuários do sistema
+  - name: BrandMaster
+    description: Gerenciamento de organizações/MSPs (White Label)
+  - name: VM
+    description: Gerenciamento de Máquinas Virtuais
+  - name: Uploads
+    description: Gerenciamento de arquivos e uploads
+
 paths:
+  # ==================== AUTH ROUTES ====================
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Fazer login no sistema
+      description: |
+        Autentica um usuário no sistema e retorna um token JWT.
+        
+        ### Credenciais de teste:
+        - **Admin**: admin@admin.com / password
+        - **Manager**: manager@test.com / password
+        - **Member**: member@test.com / password
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              admin:
+                summary: Login como Admin
+                value:
+                  email: admin@admin.com
+                  password: password
+              manager:
+                summary: Login como Manager
+                value:
+                  email: manager@test.com
+                  password: password
+
+      responses:
+        '200':
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Credenciais inválidas
+
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Registrar novo usuário
+      description: Cria um novo usuário no sistema
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              username: João Silva
+              email: joao@example.com
+              password: senhaSegura123
+              role: member
+              brandMasterId: 1
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Email já está em uso
+
+  # ==================== USER ROUTES ====================
+  /api/v1/user:
+    get:
+      tags:
+        - User
+      summary: Listar todos os usuários
+      description: |
+        Retorna lista de todos os usuários do sistema.
+        
+        **Roles permitidas:** admin, manager
+      operationId: listAllUsers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de usuários retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - User
+      summary: Criar novo usuário
+      description: |
+        Cria um novo usuário no sistema.
+        
+        **Roles permitidas:** admin, manager
+      operationId: createUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+            example:
+              username: Maria Santos
+              email: maria@example.com
+              password: senhaSegura456
+              role: member
+              brandMasterId: 1
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/user/{idUser}:
+    get:
+      tags:
+        - User
+      summary: Buscar usuário por ID
+      description: Retorna os dados de um usuário específico
+      operationId: getUserById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idUser
+          in: path
+          required: true
+          description: ID único do usuário (UUID)
+          schema:
+            type: string
+            format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Usuário encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Usuário não encontrado
+
+    put:
+      tags:
+        - User
+      summary: Atualizar usuário
+      description: |
+        Atualiza os dados de um usuário existente.
+        
+        **Roles permitidas:** admin, manager
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idUser
+          in: path
+          required: true
+          description: ID único do usuário (UUID)
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+            example:
+              username: João Silva Atualizado
+              email: joao.novo@example.com
+              role: manager
+              isActive: true
+      responses:
+        '200':
+          description: Usuário atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - User
+      summary: Deletar usuário
+      description: |
+        Remove um usuário do sistema (soft delete).
+        
+        **Roles permitidas:** admin
+      operationId: deleteUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idUser
+          in: path
+          required: true
+          description: ID único do usuário (UUID)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Usuário deletado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                message: Usuário deletado com sucesso
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== BRAND MASTER ROUTES ====================
+  /api/v1/brand-master:
+    get:
+      tags:
+        - BrandMaster
+      summary: Listar todas as organizações
+      description: Retorna lista de todas as organizações/MSPs cadastradas
+      operationId: listAllBrandMasters
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: isActive
+          in: query
+          description: Filtrar por status ativo/inativo
+          schema:
+            type: boolean
+        - name: isPoc
+          in: query
+          description: Filtrar por status POC
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Lista de organizações retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BrandMasterResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - BrandMaster
+      summary: Criar nova organização/MSP
+      description: |
+        Cria uma nova organização no sistema.
+        
+        **Roles permitidas:** admin, manager
+        
+        Este endpoint permite configurar o White Label da organização.
+      operationId: createBrandMaster
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBrandMasterRequest'
+            example:
+              brandName: Empresa Tech Ltda
+              domain: empresatech.com
+              emailContact: contato@empresatech.com
+              smsContact: "+5527999999999"
+              cnpj: "12.345.678/0001-90"
+              cep: "29100-000"
+              street: Rua Principal
+              placeNumber: "123"
+              district: Centro
+              city: Vila Velha
+              state: ES
+              timezone: America/Sao_Paulo
+              isPoc: false
+      responses:
+        '201':
+          description: Organização criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandMasterResponse'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/brand-master/self:
+    get:
+      tags:
+        - BrandMaster
+      summary: Obter organização do usuário logado
+      description: Retorna os dados da organização associada ao usuário autenticado
+      operationId: getBrandMasterSelf
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Organização retornada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandMasterResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/brand-master/{idBrandMaster}:
+    get:
+      tags:
+        - BrandMaster
+      summary: Buscar organização por ID
+      description: Retorna os dados de uma organização específica
+      operationId: getBrandMasterById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idBrandMaster
+          in: path
+          required: true
+          description: ID da organização
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Organização encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandMasterResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organização não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - BrandMaster
+      summary: Atualizar organização
+      description: |
+        Atualiza os dados de uma organização existente.
+        
+        **Roles permitidas:** admin, manager
+        
+        Use este endpoint para atualizar configurações White Label como logo, cores, etc.
+      operationId: updateBrandMaster
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idBrandMaster
+          in: path
+          required: true
+          description: ID da organização
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBrandMasterRequest'
+            example:
+              brandName: Empresa Tech Atualizada
+              brandLogo: "https://example.com/logo.png"
+              emailContact: novo@empresatech.com
+              isActive: true
+      responses:
+        '200':
+          description: Organização atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandMasterResponse'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organização não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - BrandMaster
+      summary: Deletar organização
+      description: |
+        Remove uma organização do sistema (soft delete).
+        
+        **Roles permitidas:** admin
+      operationId: deleteBrandMaster
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idBrandMaster
+          in: path
+          required: true
+          description: ID da organização
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Organização deletada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                message: Organização deletada com sucesso
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organização não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== VM ROUTES ====================
+  /api/v1/vm:
+    get:
+      tags:
+        - VM
+      summary: Listar todas as VMs
+      description: |
+        Retorna lista de todas as Máquinas Virtuais.
+        
+        A lista é filtrada de acordo com a organização do usuário logado.
+      operationId: listAllVMs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filtrar por status da VM
+          schema:
+            type: string
+            enum: [RUNNING, STOPPED, PAUSED]
+        - name: location
+          in: query
+          description: Filtrar por localização do data center
+          schema:
+            type: string
+            enum: [BR_SAO_PAULO, US_EAST_N_VIRGINIA, US_WEST_N_CALIFORNIA, EU_WEST_IRELAND]
+      responses:
+        '200':
+          description: Lista de VMs retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VMResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - VM
+      summary: Criar nova VM
+      description: |
+        Cria uma nova Máquina Virtual.
+        
+        **Roles permitidas:** admin, manager
+        
+        ### Localizações disponíveis:
+        - **BR_SAO_PAULO** - São Paulo, Brasil
+        - **US_EAST_N_VIRGINIA** - N. Virginia, EUA
+        - **US_WEST_N_CALIFORNIA** - N. California, EUA
+        - **EU_WEST_IRELAND** - Irlanda, Europa
+        
+        ### Status possíveis:
+        - **RUNNING** - VM em execução
+        - **STOPPED** - VM parada
+        - **PAUSED** - VM pausada
+      operationId: createVM
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVMRequest'
+            example:
+              vmName: Servidor Web Production
+              vCPU: 4
+              ram: 8192
+              disk: 100
+              os: "Ubuntu 22.04 LTS"
+              location: BR_SAO_PAULO
+              hasBackup: true
+              pass: SenhaSegura123!
+              brandMasterId: 1
+      responses:
+        '201':
+          description: VM criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VMResponse'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/vm/{idVM}:
+    get:
+      tags:
+        - VM
+      summary: Buscar VM por ID
+      description: Retorna os dados de uma Máquina Virtual específica
+      operationId: getVMById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idVM
+          in: path
+          required: true
+          description: ID da Máquina Virtual
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: VM encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VMResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: VM não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - VM
+      summary: Atualizar VM
+      description: |
+        Atualiza os dados de uma Máquina Virtual existente.
+        
+        **Roles permitidas:** admin, manager
+        
+        Use este endpoint para:
+        - Alterar configurações (vCPU, RAM, Disk)
+        - Iniciar/Parar/Pausar a VM (alterando o status)
+        - Ativar/desativar backup
+      operationId: updateVM
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idVM
+          in: path
+          required: true
+          description: ID da Máquina Virtual
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVMRequest'
+            examples:
+              updateSpecs:
+                summary: Atualizar especificações
+                value:
+                  vmName: Servidor Web Atualizado
+                  vCPU: 8
+                  ram: 16384
+                  disk: 200
+              startVM:
+                summary: Iniciar VM
+                value:
+                  status: RUNNING
+              stopVM:
+                summary: Parar VM
+                value:
+                  status: STOPPED
+              pauseVM:
+                summary: Pausar VM
+                value:
+                  status: PAUSED
+      responses:
+        '200':
+          description: VM atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VMResponse'
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: VM não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - VM
+      summary: Deletar VM
+      description: |
+        Remove uma Máquina Virtual do sistema.
+        
+        **Roles permitidas:** admin
+        
+        ⚠️ **Atenção:** Esta ação é irreversível!
+      operationId: deleteVM
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idVM
+          in: path
+          required: true
+          description: ID da Máquina Virtual
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: VM deletada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                message: VM deletada com sucesso
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: VM não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== UPLOADS ROUTES ====================
+  /api/v1/uploads/{objectName}:
+    get:
+      tags:
+        - Uploads
+      summary: Obter arquivo por nome
+      description: |
+        Retorna um arquivo armazenado no sistema pelo seu nome/identificador.
+        
+        Este endpoint pode ser usado para:
+        - Logos de organizações (White Label)
+        - Fotos de perfil de usuários
+        - Outros arquivos armazenados
+      operationId: getFileByObjectName
+      parameters:
+        - name: objectName
+          in: path
+          required: true
+          description: Nome/identificador do arquivo
+          schema:
+            type: string
+          example: "logo-empresa-123.png"
+      responses:
+        '200':
+          description: Arquivo retornado com sucesso
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Arquivo não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Arquivo não encontrado
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-tags:
-  - name: brandMaster
-  - name: VM
+      bearerFormat: JWT
+      description: |
+        Token JWT obtido através do endpoint de login.
+        
+        Formato: `Bearer <token>`
+
+  schemas:
+    # ==================== AUTH SCHEMAS ====================
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email do usuário
+          example: admin@admin.com
+        password:
+          type: string
+          format: password
+          description: Senha do usuário
+          minLength: 6
+          example: admin123
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Token JWT para autenticação
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          description: Nome completo do usuário
+          minLength: 2
+          maxLength: 100
+          example: João Silva
+        email:
+          type: string
+          format: email
+          description: Email do usuário (único no sistema)
+          example: joao@example.com
+        password:
+          type: string
+          format: password
+          description: Senha do usuário (mínimo 6 caracteres)
+          minLength: 6
+          example: senhaSegura123
+        role:
+          type: string
+          enum: [admin, manager, member]
+          default: member
+          description: Papel do usuário no sistema
+        brandMasterId:
+          type: integer
+          description: ID da organização associada
+          example: 1
+
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Usuário criado com sucesso
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    # ==================== USER SCHEMAS ====================
+    UserResponse:
+      type: object
+      properties:
+        idUser:
+          type: string
+          format: uuid
+          description: ID único do usuário
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        username:
+          type: string
+          description: Nome do usuário
+          example: João Silva
+        email:
+          type: string
+          format: email
+          description: Email do usuário
+          example: joao@example.com
+        profileImgUrl:
+          type: string
+          nullable: true
+          description: URL da foto de perfil
+          example: "https://example.com/profile.jpg"
+        role:
+          type: string
+          enum: [admin, manager, member]
+          description: Papel do usuário
+          example: member
+        isActive:
+          type: boolean
+          description: Status ativo/inativo
+          example: true
+        lastLoginDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: Data do último login
+        createdAt:
+          type: string
+          format: date-time
+          description: Data de criação
+        updatedAt:
+          type: string
+          format: date-time
+          description: Data da última atualização
+        brandMaster:
+          $ref: '#/components/schemas/BrandMasterResponse'
+          nullable: true
+
+    CreateUserRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          description: Nome completo do usuário
+          minLength: 2
+          maxLength: 100
+          example: Maria Santos
+        email:
+          type: string
+          format: email
+          description: Email do usuário
+          example: maria@example.com
+        password:
+          type: string
+          format: password
+          description: Senha do usuário
+          minLength: 6
+          example: senhaSegura456
+        role:
+          type: string
+          enum: [admin, manager, member]
+          default: member
+          description: Papel do usuário
+        profileImgUrl:
+          type: string
+          nullable: true
+          description: URL da foto de perfil
+        brandMasterId:
+          type: integer
+          description: ID da organização associada
+          example: 1
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Nome do usuário
+          example: João Silva Atualizado
+        email:
+          type: string
+          format: email
+          description: Email do usuário
+          example: joao.novo@example.com
+        password:
+          type: string
+          format: password
+          description: Nova senha (deixe vazio para manter a atual)
+          minLength: 6
+        profileImgUrl:
+          type: string
+          nullable: true
+          description: URL da foto de perfil
+        role:
+          type: string
+          enum: [admin, manager, member]
+          description: Papel do usuário
+        isActive:
+          type: boolean
+          description: Status ativo/inativo
+        brandMasterId:
+          type: integer
+          description: ID da organização associada
+
+    # ==================== BRAND MASTER SCHEMAS ====================
+    BrandMasterResponse:
+      type: object
+      properties:
+        idBrandMaster:
+          type: integer
+          description: ID da organização
+          example: 1
+        brandName:
+          type: string
+          nullable: true
+          description: Nome da organização
+          example: Empresa Tech Ltda
+        brandLogo:
+          type: string
+          nullable: true
+          description: URL do logo da organização (White Label)
+          example: "https://example.com/logo.png"
+        domain:
+          type: string
+          nullable: true
+          description: Domínio da organização
+          example: empresatech.com
+        emailContact:
+          type: string
+          nullable: true
+          description: Email de contato
+          example: contato@empresatech.com
+        smsContact:
+          type: string
+          nullable: true
+          description: Telefone/SMS de contato
+          example: "+5527999999999"
+        cnpj:
+          type: string
+          nullable: true
+          description: CNPJ da organização
+          example: "12.345.678/0001-90"
+        cep:
+          type: string
+          nullable: true
+          description: CEP
+          example: "29100-000"
+        street:
+          type: string
+          nullable: true
+          description: Rua/Logradouro
+          example: Rua Principal
+        placeNumber:
+          type: string
+          nullable: true
+          description: Número
+          example: "123"
+        district:
+          type: string
+          nullable: true
+          description: Bairro
+          example: Centro
+        city:
+          type: string
+          nullable: true
+          description: Cidade
+          example: Vila Velha
+        state:
+          type: string
+          nullable: true
+          description: Estado (sigla)
+          example: ES
+        timezone:
+          type: string
+          nullable: true
+          description: Fuso horário
+          example: America/Sao_Paulo
+        isActive:
+          type: boolean
+          nullable: true
+          description: Status ativo/inativo
+          example: true
+        isPoc:
+          type: boolean
+          nullable: true
+          description: É uma Prova de Conceito (POC)?
+          example: false
+        contract:
+          type: string
+          nullable: true
+          description: URL do contrato
+        contractAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Data de assinatura do contrato
+        pocOpenedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Data de abertura da POC
+        manual:
+          type: string
+          nullable: true
+          description: URL do manual
+        termsOfUse:
+          type: string
+          nullable: true
+          description: URL dos termos de uso
+        privacyPolicy:
+          type: string
+          nullable: true
+          description: URL da política de privacidade
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Data de criação
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Data da última atualização
+
+    CreateBrandMasterRequest:
+      type: object
+      required:
+        - brandName
+      properties:
+        brandName:
+          type: string
+          description: Nome da organização
+          example: Empresa Tech Ltda
+        brandLogo:
+          type: string
+          nullable: true
+          description: URL do logo
+        domain:
+          type: string
+          nullable: true
+          description: Domínio
+          example: empresatech.com
+        emailContact:
+          type: string
+          format: email
+          nullable: true
+          description: Email de contato
+          example: contato@empresatech.com
+        smsContact:
+          type: string
+          nullable: true
+          description: Telefone de contato
+          example: "+5527999999999"
+        cnpj:
+          type: string
+          nullable: true
+          description: CNPJ
+          example: "12.345.678/0001-90"
+        cep:
+          type: string
+          nullable: true
+          description: CEP
+          example: "29100-000"
+        street:
+          type: string
+          nullable: true
+          description: Rua
+        placeNumber:
+          type: string
+          nullable: true
+          description: Número
+        district:
+          type: string
+          nullable: true
+          description: Bairro
+        city:
+          type: string
+          nullable: true
+          description: Cidade
+        state:
+          type: string
+          nullable: true
+          description: Estado
+          maxLength: 2
+        timezone:
+          type: string
+          nullable: true
+          description: Fuso horário
+          example: America/Sao_Paulo
+        isPoc:
+          type: boolean
+          default: false
+          description: É uma POC?
+
+    UpdateBrandMasterRequest:
+      type: object
+      properties:
+        brandName:
+          type: string
+          description: Nome da organização
+        brandLogo:
+          type: string
+          nullable: true
+          description: URL do logo (White Label)
+        domain:
+          type: string
+          nullable: true
+          description: Domínio
+        emailContact:
+          type: string
+          nullable: true
+          description: Email de contato
+        smsContact:
+          type: string
+          nullable: true
+          description: Telefone de contato
+        cnpj:
+          type: string
+          nullable: true
+          description: CNPJ
+        cep:
+          type: string
+          nullable: true
+          description: CEP
+        street:
+          type: string
+          nullable: true
+          description: Rua
+        placeNumber:
+          type: string
+          nullable: true
+          description: Número
+        district:
+          type: string
+          nullable: true
+          description: Bairro
+        city:
+          type: string
+          nullable: true
+          description: Cidade
+        state:
+          type: string
+          nullable: true
+          description: Estado
+        timezone:
+          type: string
+          nullable: true
+          description: Fuso horário
+        isActive:
+          type: boolean
+          description: Status ativo/inativo
+        isPoc:
+          type: boolean
+          description: É uma POC?
+        contract:
+          type: string
+          nullable: true
+          description: URL do contrato
+        manual:
+          type: string
+          nullable: true
+          description: URL do manual
+        termsOfUse:
+          type: string
+          nullable: true
+          description: URL dos termos de uso
+        privacyPolicy:
+          type: string
+          nullable: true
+          description: URL da política de privacidade
+
+    # ==================== VM SCHEMAS ====================
+    VMResponse:
+      type: object
+      properties:
+        idVM:
+          type: integer
+          description: ID da VM
+          example: 1
+        vmName:
+          type: string
+          nullable: true
+          description: Nome da VM
+          example: Servidor Web Production
+        vCPU:
+          type: integer
+          description: Número de vCPUs
+          example: 4
+        ram:
+          type: integer
+          description: Memória RAM em MB
+          example: 8192
+        disk:
+          type: integer
+          description: Disco em GB
+          example: 100
+        os:
+          type: string
+          nullable: true
+          description: Sistema operacional
+          example: Ubuntu 22.04 LTS
+        location:
+          type: string
+          nullable: true
+          enum: [BR_SAO_PAULO, US_EAST_N_VIRGINIA, US_WEST_N_CALIFORNIA, EU_WEST_IRELAND]
+          description: Localização do data center
+          example: BR_SAO_PAULO
+        status:
+          type: string
+          nullable: true
+          enum: [RUNNING, STOPPED, PAUSED]
+          description: Status atual da VM
+          example: RUNNING
+        hasBackup:
+          type: boolean
+          nullable: true
+          description: Backup habilitado?
+          example: true
+        pass:
+          type: string
+          nullable: true
+          description: Senha da VM (criptografada)
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Data de criação
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Data da última atualização
+        brandMaster:
+          $ref: '#/components/schemas/BrandMasterResponse'
+          nullable: true
+
+    CreateVMRequest:
+      type: object
+      required:
+        - vmName
+        - vCPU
+        - ram
+        - disk
+        - location
+      properties:
+        vmName:
+          type: string
+          description: Nome da VM
+          example: Servidor Web Production
+        vCPU:
+          type: integer
+          minimum: 1
+          maximum: 64
+          description: Número de vCPUs
+          example: 4
+        ram:
+          type: integer
+          minimum: 512
+          description: Memória RAM em MB
+          example: 8192
+        disk:
+          type: integer
+          minimum: 10
+          description: Disco em GB
+          example: 100
+        os:
+          type: string
+          description: Sistema operacional
+          example: Ubuntu 22.04 LTS
+        location:
+          type: string
+          enum: [BR_SAO_PAULO, US_EAST_N_VIRGINIA, US_WEST_N_CALIFORNIA, EU_WEST_IRELAND]
+          description: Localização do data center
+          example: BR_SAO_PAULO
+        hasBackup:
+          type: boolean
+          default: false
+          description: Habilitar backup?
+        pass:
+          type: string
+          description: Senha de acesso à VM
+          minLength: 8
+          example: SenhaSegura123!
+        brandMasterId:
+          type: integer
+          description: ID da organização associada
+          example: 1
+
+    UpdateVMRequest:
+      type: object
+      properties:
+        vmName:
+          type: string
+          description: Nome da VM
+        vCPU:
+          type: integer
+          minimum: 1
+          maximum: 64
+          description: Número de vCPUs
+        ram:
+          type: integer
+          minimum: 512
+          description: Memória RAM em MB
+        disk:
+          type: integer
+          minimum: 10
+          description: Disco em GB
+        os:
+          type: string
+          description: Sistema operacional
+        location:
+          type: string
+          enum: [BR_SAO_PAULO, US_EAST_N_VIRGINIA, US_WEST_N_CALIFORNIA, EU_WEST_IRELAND]
+          description: Localização do data center
+        status:
+          type: string
+          enum: [RUNNING, STOPPED, PAUSED]
+          description: |
+            Status da VM:
+            - **RUNNING** - Iniciar a VM
+            - **STOPPED** - Parar a VM
+            - **PAUSED** - Pausar a VM
+        hasBackup:
+          type: boolean
+          description: Habilitar/desabilitar backup
+        pass:
+          type: string
+          description: Nova senha de acesso
+          minLength: 8
+
+    # ==================== COMMON SCHEMAS ====================
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensagem de erro
+          example: Ocorreu um erro
+        message:
+          type: string
+          description: Descrição detalhada do erro
+        statusCode:
+          type: integer
+          description: Código HTTP do erro
+          example: 400
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Mensagem de sucesso
+          example: Operação realizada com sucesso
+        success:
+          type: boolean
+          example: true

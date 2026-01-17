@@ -1,4 +1,3 @@
-import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
@@ -23,37 +22,31 @@ const loadSchemas = () => {
 const schemas = loadSchemas()?.definitions || {};
 const swaggerYamlPath = path.resolve(__dirname, "swagger.yaml");
 const swaggerYamlDocs = YAML.load(swaggerYamlPath);
-const swaggerOptions = {
-  swaggerDefinition: {
-    openapi: "3.0.0",
-    info: {
-      title: "API Cloud",
-      version: "1.0.0",
-      description: "Docs API with Swagger and Prisma",
-    },
-    servers: [
-      {
-        url: `http://localhost:${process.env.PORT || 3001}`,
-        description: "Local Server",
-      },
-    ],
-    components: {
-      schemas,
+
+// Merge Prisma schemas with the YAML documentation
+const swaggerDocs = {
+  ...swaggerYamlDocs,
+  components: {
+    ...swaggerYamlDocs.components,
+    schemas: {
+      ...swaggerYamlDocs.components?.schemas,
+      // Add Prisma-generated schemas
+      ...schemas,
     },
   },
-  apis: ["./src/routes/*.ts"],
 };
 
-const swaggerDocs = {
-  ...swaggerJSDoc(swaggerOptions),
-} as { paths: object; tags: Array<unknown>; components: object };
-swaggerDocs.paths = swaggerYamlDocs.paths;
-swaggerDocs.tags = swaggerYamlDocs.tags;
-swaggerDocs.components = {
-  ...swaggerDocs.components,
-  ...swaggerYamlDocs.components,
+// Swagger UI customization options
+const swaggerUiOptions = {
+  customCss: `
+    .swagger-ui .topbar { display: none }
+    .swagger-ui .info .title { color: #3b82f6 }
+  `,
+  customSiteTitle: "API Cloud - Documentação",
+  customfavIcon: "/favicon.ico",
+  explorer: true,
 };
 
 export const setupSwagger = (app: Express): void => {
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs, swaggerUiOptions));
 };

@@ -34,6 +34,11 @@ export const brandMasterSchema = z.object({
   retailPercentageDefault: z.number().min(0).optional(),
   hasSelfRegister: z.boolean().optional(),
   hasPrepaid: z.boolean().optional(),
+  admName: z.string().optional(),
+  admEmail: z.string().optional(),
+  admPhone: z.string().optional(),
+  admPassword: z.string().optional(),
+  admUsername: z.string().optional(),
 });
 
 export type TBrandMaster = z.infer<typeof brandMasterSchema>;

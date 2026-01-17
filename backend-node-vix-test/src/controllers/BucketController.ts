@@ -11,13 +11,13 @@ export class BucketController {
     req: CustomRequest<unknown>,
     res: Response,
   ) {
-    const { objectName } = req.params;
+    const { objectName } = req.params as { objectName: string };
     const filePath = path.join(__dirname, "..", "..", "uploads", objectName);
     return res.sendFile(filePath);
   }
 
   async getFileByObjectName(req: CustomRequest<unknown>, res: Response) {
-    const { objectName } = req.params;
+    const { objectName } = req.params as { objectName: string };
     const response = await this.bucketService.renewPresignedUrl(objectName);
     return res.status(STATUS_CODE.OK).json({ url: response });
   }

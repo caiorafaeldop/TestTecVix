@@ -20,10 +20,24 @@ export class VMService {
   async listAll(query: unknown, user: user) {
     const validQuery = vmListAllSchema.parse(query);
     
-    // Filtrar por BrandMaster do usuário quando aplicável
+    // Lógica de filtro por BrandMaster:
+    // 1. Se o usuário tem idBrandMaster (é de um MSP), só pode ver VMs do seu próprio MSP
+    // 2. Se o usuário não tem idBrandMaster (usuário Vituax), pode ver todas as VMs
+    //    ou filtrar por um MSP específico (idBrandMaster da query)
+    let filterBrandMaster: number | undefined = undefined;
+    
+    if (user.idBrandMaster) {
+      // Usuário de MSP: só pode ver VMs do seu próprio MSP
+      filterBrandMaster = user.idBrandMaster;
+    } else if (validQuery.idBrandMaster !== undefined && validQuery.idBrandMaster !== null) {
+      // Usuário Vituax com filtro específico de MSP
+      filterBrandMaster = validQuery.idBrandMaster;
+    }
+    // Se não cair em nenhum caso, filterBrandMaster = undefined = todas as VMs
+
     const listVm = await this.vMModel.listAll({
       query: validQuery,
-      idBrandMaster: user.idBrandMaster || Number(validQuery.idBrandMaster) || undefined,
+      idBrandMaster: filterBrandMaster,
     });
 
     // Controle de visibilidade de senha por role
