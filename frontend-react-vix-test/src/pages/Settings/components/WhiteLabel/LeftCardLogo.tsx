@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { themeColors, useZTheme } from "../../../../stores/useZTheme";
-import { useUploadFile } from "../../../../hooks/useUploadFile";
+import { useBrandMasterResources } from "../../../../hooks/useBrandMasterResources";
 import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { TextRob16Font1S } from "../../../../components/Text1S";
@@ -21,29 +21,31 @@ interface IWhiteLabelChildProps {
 export const LeftCardLogo = ({ theme }: IWhiteLabelChildProps) => {
   const { mode } = useZTheme();
   const { t } = useTranslation();
-  const { handleUpload, isUploading } = useUploadFile();
-  const { setBrandInfo, brandLogoTemp } = useZBrandInfo();
+  const { updateLogo, isLoading } = useBrandMasterResources();
+  const { setBrandInfo, brandLogo } = useZBrandInfo();
   const [uploadedFile, setUploadedFile] = useState<string | null>(
-    brandLogoTemp,
+    brandLogo || null,
   );
 
   const onDrop = async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
 
-    const file = acceptedFiles[0]; // Seleciona o primeiro arquivo
-    const response = await handleUpload(file);
+    const file = acceptedFiles[0];
+    
+    // Set local preview immediately
+    const previewUrl = URL.createObjectURL(file);
+    setUploadedFile(previewUrl);
 
-    if (response && response.url) {
-      setUploadedFile(response.url); // Atualiza a URL do logo carregado
-      setBrandInfo({
-        brandLogoTemp: response.url,
-        brandObjectName: response.objectName,
-      });
+    const response = await updateLogo(file);
+
+    if (response && response.brandLogo) {
+       // BrandLogo logic handled by hook + store mostly, but response provides immediate confirmation
     }
   };
 
   const hadleRemoveLogo = () => {
-    setBrandInfo({ brandLogoTemp: "" });
+    setBrandInfo({ brandLogo: "" });
+    setUploadedFile(null);
   };
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
@@ -53,10 +55,12 @@ export const LeftCardLogo = ({ theme }: IWhiteLabelChildProps) => {
   });
 
   useEffect(() => {
-    if (!brandLogoTemp) {
-      setUploadedFile(null);
+    if (brandLogo) {
+        setUploadedFile(brandLogo);
+    } else {
+        setUploadedFile(null);
     }
-  }, [brandLogoTemp]);
+  }, [brandLogo]);
 
   return (
     <>
@@ -102,7 +106,7 @@ export const LeftCardLogo = ({ theme }: IWhiteLabelChildProps) => {
             userSelect: "none",
           }}
         >
-          {isUploading ? t("whiteLabel.loading") : t("whiteLabel.clickHere")}
+          {isLoading ? t("whiteLabel.loading") : t("whiteLabel.clickHere")}
         </TextRob12Font2Xs>
       </Box>
       {uploadedFile && (
@@ -115,7 +119,7 @@ export const LeftCardLogo = ({ theme }: IWhiteLabelChildProps) => {
           }}
         >
           <img
-            src={uploadedFile}
+            src={uploadedFile} // Ensure this is a valid URL
             alt="Logo carregado"
             style={{
               maxWidth: "100%",
