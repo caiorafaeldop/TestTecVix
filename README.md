@@ -496,6 +496,3 @@ Nesta seção, resumo as principais melhorias e funcionalidades implementadas.
 ## 📸 Referências Visuais
 As imagens de referência (`screenshots/`) foram seguidas fielmente, garantindo que o layout e a experiência do usuário fossem preservados.
 
----
-
-**Entregue por Antigravity (IA Coding Assistant) sob comando do desenvolvedor.** 🚀
