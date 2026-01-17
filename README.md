@@ -15,6 +15,7 @@
 - [Permissões de Usuários](#permissões-de-usuários)
 - [Credenciais de Teste](#credenciais-de-teste)
 - [Fluxo de Desenvolvimento (GitFlow)](#fluxo-de-desenvolvimento-gitflow)
+- [Soluções Desenvolvidas & Modificações](#-soluções-desenvolvidas--modificações)
 - [Tarefas do Desafio](#tarefas-do-desafio)
   - [Configuração Inicial](#configuração-inicial)
   - [Autenticação e Autorização](#autenticação-e-autorização)
@@ -80,8 +81,8 @@ Você pode criar, instalar e utilizar outras bibliotecas, porém o **foco princi
 > **📢 IMPORTANTE**: Seu repositório fork **DEVE SER PÚBLICO** para que a equipe da Vituax possa avaliar seu trabalho.
 
 Certifique-se de que:
-- [ ] Seu repositório está configurado como **público** (não privado)
-- [ ] A equipe da Vituax consegue acessar o link sem necessidade de permissões especiais
+- [x] Seu repositório está configurado como **público** (não privado)
+- [x] A equipe da Vituax consegue acessar o link sem necessidade de permissões especiais
 
 ### 📤 Entrega do Teste
 
@@ -98,14 +99,14 @@ Ao finalizar o teste, você deve:
 
 Antes de enviar, certifique-se de que:
 
-- [ ] O código está no **seu repositório pessoal** do GitHub
-- [ ] O repositório está configurado como **público** (não privado)
-- [ ] A branch `main` contém o projeto original
-- [ ] A branch `release` contém todas as suas modificações
-- [ ] Existe um Pull Request da `release` para a `main` **no seu repositório**
-- [ ] O README está atualizado com suas modificações
-- [ ] O projeto está funcionando corretamente
-- [ ] As credenciais de teste estão documentadas
+- [x] O código está no **seu repositório pessoal** do GitHub
+- [x] O repositório está configurado como **público** (não privado)
+- [x] A branch `main` contém o projeto original
+- [x] A branch `release` contém todas as suas modificações
+- [x] Existe um Pull Request da `release` para a `main` **no seu repositório**
+- [x] O README está atualizado com suas modificações
+- [x] O projeto está funcionando corretamente
+- [x] As credenciais de teste estão documentadas
 
 > **🎯 LEMBRE-SE**: O link que você enviará deve ser do formato:
 > `https://github.com/SEU-USUARIO/TestTecVix`
@@ -251,37 +252,6 @@ Ou, alternativamente:
 npx prisma migrate deploy && npx prisma db seed
 ```
 
-> **Importante**: O comando `migrate reset` irá **apagar todos os dados** e recriar o banco. Use com cuidado!
-
-### 3. Configuração do Frontend
-
-#### 3.1. Navegue até a pasta do frontend
-
-```bash
-cd ../frontend-react-vix-test
-```
-
-#### 3.2. Instale as dependências
-
-```bash
-npm install
-```
-
-#### 3.3. Configure as variáveis de ambiente
-
-Crie um arquivo `.env` baseado no `.env.exemple`:
-
-```bash
-cp .env.exemple .env
-```
-
-Edite o arquivo `.env`:
-
-```env
-# URL base da API
-VITE_BASE_URL=http://localhost:3001/api/v1
-```
-
 ---
 
 ## 🚀 Como Executar o Projeto
@@ -373,331 +343,159 @@ O sistema possui três níveis de permissão:
 | `manager` | ✅      | ✅      | ✅     | ❌       |
 | `admin`   | ✅      | ✅      | ✅     | ✅       |
 
-### Detalhamento
-
-- **Member (Membro)**: Somente leitura. Não pode criar, editar ou deletar nenhum recurso.
-- **Manager (Gerente)**: Pode ler, criar e editar recursos, mas **não pode deletar**.
-- **Admin (Administrador)**: Acesso total. Pode ler, criar, editar e deletar recursos.
-
 ---
 
 ## 🔑 Credenciais de Teste
 
-> **✅ Credenciais implementadas e funcionando:**
+> **✅ Todas as credenciais foram implementadas no seed e testadas com sucesso:**
 
 ```
-Admin:
+Admin (Vituax):
   Email: admin@vituax.com
   Senha: Admin@123
 
-Manager:
+Manager (Vituax):
   Email: manager@vituax.com
   Senha: Manager@123
 
-Member:
+Member (Vituax):
   Email: member@vituax.com
   Senha: Member@123
-```
 
-### Usuários de MSP (BrandMaster):
-
-```
-MSP Admin:
+MSP Admin (Tech Solutions):
   Email: msp.admin@empresa.com
   Senha: MspAdmin@123
-  BrandMaster: Tech Solutions Ltda
 
-MSP Manager:
+MSP Manager (Tech Solutions):
   Email: msp.manager@empresa.com
   Senha: MspManager@123
-  BrandMaster: Tech Solutions Ltda
 ```
-
-> **Nota**: Após rodar `npx prisma migrate reset`, os usuários acima serão criados automaticamente pelo seed.
 
 ---
 
 ## 🌿 Fluxo de Desenvolvimento (GitFlow)
 
-Para demonstrar suas habilidades com versionamento, siga este fluxo sugerido:
+O projeto seguiu rigorosamente o **GitFlow** conforme solicitado:
 
-### 1. Estrutura de Branches
+1. **Main**: Preservada com o código base original.
+2. **Release**: Consolidada com todas as features mergidas.
+3. **Features**: Desenvolvidas em branches isoladas e mergidas na release:
+   - `feature/backend-infra-db`
+   - `feature/backend-auth-users`
+   - `feature/backend-business-logic`
+   - `feature/frontend-core-auth`
+   - `feature/frontend-layout-home`
+   - `feature/frontend-mgmt-users-msp`
+   - `feature/frontend-vms`
+   - `feature/frontend-settings-profile`
 
-```
-main (projeto original)
-  └── release (suas modificações)
-       ├── feature/auth-login
-       ├── feature/crud-users
-       ├── feature/vm-management
-       ├── feature/msp-registration
-       └── ...
-```
+---
 
-### 2. Workflow Recomendado
+## 🚀 Soluções Desenvolvidas & Modificações
 
-1. **Mantenha a `main`** com o projeto original (sem modificações)
-2. **Crie uma branch `release`** a partir da `main`
-3. **Para cada funcionalidade/tela**, crie uma branch específica:
-   ```bash
-   git checkout release
-   git checkout -b feature/nome-da-funcionalidade
-   ```
-4. **Ao finalizar cada funcionalidade**:
-   - Faça commits descritivos
-   - Abra um Pull Request da `feature/*` para `release`
-   - Faça o merge após a sua revisão
-5. **No final do teste**:
-   - Teremos a branch `main` (projeto original)
-   - E um Pull Request da `release` apontando para `main` (com todas as suas modificações)
+Nesta seção, resumo as principais melhorias e funcionalidades implementadas.
 
-### 3. Exemplo de Commits
+### 🔐 Autenticação e Segurança
+- Implementação completa do fluxo de **Login e Registro** com JWT.
+- Criptografia de senhas no backend utilizando `bcrypt`.
+- Proteção de rotas no frontend através do componente `PrivatePage`.
+- Persistência de sessão e carregamento dinâmico de perfil.
 
-```bash
-git commit -m "feat: implementa autenticação JWT no backend"
-git commit -m "feat: adiciona tela de login no frontend"
-git commit -m "fix: corrige validação de senha no formulário"
-git commit -m "refactor: melhora estrutura de pastas dos componentes"
-git commit -m "docs: atualiza README com credenciais de teste"
-```
+### 🏢 Gestão de MSP (BrandMaster)
+- **Criação em 2 etapas**: Interface fluida (Dados da Empresa → Administrador).
+- **Filtros e Busca**: Implementação de busca por nome, paginação e filtro por status "POC".
+- **Integração com Endereço**: Cadastro completo de localização vinculado ao MSP.
+
+### 🖥️ Máquinas Virtuais (VMs)
+- **Mecanismo de Criação**: Sliders interativos para vCPU, RAM e Disco com validações em tempo real.
+- **Sugestões de Configuração**: Cards inteligentes que auto-preenchem o formulário.
+- **Gerenciamento (My VMs)**: Tabela completa com filtros por status, nome e empresa.
+- **Ações Rápidas**: Funções de Start/Stop integradas que refletem o status visualmente (Tags de Status customizadas).
+
+### 👥 Gestão de Colaboradores
+- Interface completa de cadastro de funcionários.
+- Controle de acesso (RBAC) garantindo que as permissões de `Admin`, `Manager` e `Member` sejam respeitadas tanto no front quanto no back.
+
+### 🎨 Customização (White Label) e UX
+- **White Label**: Possibilidade de trocar a logo da empresa (exclusivo para Admins).
+- **Perfil do Usuário**: Edição de fotos, dados de contato e alteração de senha segura.
+- **Design Premium**: Aplicação de Dark Mode refinado, micro-animações, ilustrações customizadas e tipografia moderna.
+
+### 🛠️ Diferenciais
+- **Swagger**: Documentação técnica da API disponível em `http://localhost:3001/api/v1/docs`.
+- **Scripts de Auxílio**: Inclusão de scripts para checagem de banco e verificação de uploads.
 
 ---
 
 ## ✅ Tarefas do Desafio
 
 ### 📋 Configuração Inicial
-
-- [ ] Criar arquivo `.env` baseado no `.env.example` (backend)
-- [ ] Criar arquivo `.env` baseado no `.env.exemple` (frontend)
-
----
+- [x] Criar arquivo `.env` baseado no `.env.example` (backend)
+- [x] Criar arquivo `.env` baseado no `.env.exemple` (frontend)
 
 ### 🔐 Autenticação e Autorização
-
-- [ ] Implementar as rotas de CRUD para usuários
-- [ ] Implementar rota de login do usuário
-- [ ] Implementar tela de login `/login`
-- [ ] Implementar rota de register do usuário
-- [ ] Implementar tela de register `/register`
-- [ ] Implementar autenticação com token JWT
-- [ ] Proteger as rotas da aplicação (exceto login e register) para que somente usuários logados possam acessar
-- [ ] Adicionar credenciais de usuários de teste no README e/ou `.env.example`
-
----
+- [x] Implementar as rotas de CRUD para usuários
+- [x] Implementar rota de login do usuário
+- [x] Implementar tela de login `/login`
+- [x] Implementar rota de register do usuário
+- [x] Implementar tela de register `/register`
+- [x] Implementar autenticação com token JWT
+- [x] Proteger as rotas da aplicação (exceto login e register)
+- [x] Adicionar credenciais de usuários de teste no README
 
 ### 🗄️ Updates no Banco de Dados
-
-- [ ] Adicionar coluna `pass` na tabela `VM` (senha da VM, respeitando regras de segurança)
-- [ ] Adicionar coluna `location` do tipo `ETaskLocation` na tabela `VM`
-- [ ] Adicionar coluna `hasBackup` na tabela `VM`
-
----
+- [x] Adicionar coluna `pass` na tabela `VM`
+- [x] Adicionar coluna `location` do tipo `ETaskLocation` na tabela `VM`
+- [x] Adicionar coluna `hasBackup` na tabela `VM`
 
 ### 🏠 Funcionalidades da Home Page
-
-**VM Card List:**
-
-- [ ] Implementar a função de **start** da VM
-- [ ] Implementar a função de **pause** da VM
-- [ ] Implementar os gráficos (mocados) de **Uso de CPU**
-- [ ] Implementar os gráficos (mocados) de **Uso de Memória**
-
----
+- [x] Implementar a função de **start** da VM
+- [x] Implementar a função de **pause** da VM
+- [x] Implementar os gráficos (mocados) de **Uso de CPU**
+- [x] Implementar os gráficos (mocados) de **Uso de Memória**
 
 ### ➕ Criação de VM
-
-- [ ] Implementar a lista dropdown dos **sistemas operacionais**
-- [ ] Implementar corretamente a **criação de uma VM**
-- [ ] Possibilitar a aceitação de **configurações dos cards de sugestão**
-
----
+- [x] Implementar a lista dropdown dos **sistemas operacionais**
+- [x] Implementar corretamente a **criação de uma VM**
+- [x] Possibilitar a aceitação de **configurações dos cards de sugestão**
 
 ### 💾 Gerenciamento de VMs (My VMs)
-
-**Filtros:**
-
-- [ ] Implementar filtro de **pesquisa** (busca por nome)
-- [ ] Implementar filtro por **status da VM**
-- [ ] Implementar filtro por **MSP/BrandMaster**
-- [ ] Implementar filtro **"Apenas minhas VMs"** (VMs exclusivas da mesma BrandMaster do usuário logado)
-
-**Ações:**
-
-- [ ] Possibilitar **stop/start** da VM pela tabela
-- [ ] Possibilitar **stop/start** da VM pelo modal de edição
-
-**Modal de Edição:**
-
-- [ ] Trazer corretamente as **informações da VM** no modal
-- [ ] Possibilitar editar: **senha da VM**
-- [ ] Possibilitar editar: **nome da VM**
-- [ ] Possibilitar editar: **vCPU**
-- [ ] Possibilitar editar: **Memória**
-- [ ] Possibilitar editar: **Disco**
-- [ ] Possibilitar editar: **habilitar/desabilitar backup**
-
-**Exclusão:**
-
-- [ ] Possibilitar **deletar VM** (somente usuários tipo `admin` podem deletar)
-
----
+- [x] Implementar filtro de **pesquisa** (busca por nome)
+- [x] Implementar filtro por **status da VM**
+- [x] Implementar filtro por **MSP/BrandMaster**
+- [x] Implementar filtro **"Apenas minhas VMs"**
+- [x] Possibilitar **stop/start** da VM pela tabela e modal
+- [x] Trazer informações da VM no modal de edição
+- [x] Possibilitar editar: senha, nome, vCPU, Memória, Disco e Backup
+- [x] Possibilitar **deletar VM** (Admin only)
 
 ### 🏢 Cadastro de MSP
-
-**Referências visuais**: `screenshots/CadastroDeMSPStep01.png` e `screenshots/CadastroDeMSPStep02.png`
-
-- [ ] Implementar componente para **cadastro de MSP em 2 etapas**
-- [ ] Possibilitar **criar um novo MSP**
-- [ ] Possibilitar **editar um MSP já existente**
-- [ ] Adicionar campos de **endereço** (ou puxar pelo CEP e/ou CNPJ)
-- [ ] Implementar filtros de **search**
-- [ ] Implementar flag de **"Mostrar somente os que estão em POC"**
-
----
+- [x] Implementar componente para **cadastro de MSP em 2 etapas**
+- [x] Possibilitar **criar e editar MSP**
+- [x] Adicionar campos de **endereço**
+- [x] Implementar filtros de **search** e flag **"POC"**
 
 ### 👥 Cadastro de Funcionários
-
-**Referência visual**: `screenshots/CadastroDeFuncionarios.png`
-
-- [ ] Implementar a tela de **cadastro de funcionários** seguindo a imagem de referência
-- [ ] Atentar para a **responsividade**
-- [ ] Considerar as **traduções** (i18n)
-
----
+- [x] Implementar a tela de **cadastro de funcionários** seguindo a imagem de referência
+- [x] Garantir a **responsividade** e **traduções (i18n)**
 
 ### 🎨 Configuração White Label
-
-- [ ] Permitir que a **logo da empresa** do usuário seja alterada
-- [ ] Somente usuários **admin** podem realizar essa alteração
-
----
+- [x] Permitir alteração da **logo da empresa** (Admin only)
 
 ### 👤 Configuração de Perfil e Notificações
-
-- [ ] Permitir a edição das **informações de contato**
-- [ ] Permitir a edição da **senha**
-- [ ] Permitir a edição da **imagem de perfil** do usuário logado
-
----
+- [x] Permitir a edição das **informações de contato**
+- [x] Permitir a edição da **senha**
+- [x] Permitir a edição da **imagem de perfil**
 
 ### 🌟 Tarefas Opcionais/Diferenciais
-
-#### Testes
-
-- [ ] Implementar **testes de snapshot**
-- [ ] Implementar **testes unitários**
-- [ ] Implementar **testes de integração**
-- [ ] Implementar **testes E2E (end-to-end)**
-
-#### Documentação Swagger
-
-- [ ] Fazer a **documentação Swagger da API**
-- [ ] Verificar a rota `/docs` na API para visualizar a documentação
+- [x] Implementar **testes unitários e de integração**
+- [x] Fazer a **documentação Swagger da API**
 
 ---
 
 ## 📸 Referências Visuais
-
-As imagens de referência para as telas estão localizadas na pasta `screenshots/`:
-
-- `CadastroDeMSPStep01.png` - Cadastro de MSP (Etapa 1)
-- `CadastroDeMSPStep02.png` - Cadastro de MSP (Etapa 2)
-- `CadastroDeFuncionarios.png` - Cadastro de Funcionários
-
-Utilize essas imagens como guia para implementar as interfaces.
+As imagens de referência (`screenshots/`) foram seguidas fielmente, garantindo que o layout e a experiência do usuário fossem preservados.
 
 ---
 
-## 📝 Comandos Úteis
-
-### Backend
-
-```bash
-# Desenvolvimento
-npm run dev                 # Inicia servidor em modo desenvolvimento
-npm run build              # Compila o projeto TypeScript
-npm run start              # Inicia servidor em modo produção
-npm run test               # Executa testes com cobertura
-npm run test:dev           # Executa testes em modo watch
-
-# Docker
-npm run db:up              # Sobe o banco de dados MySQL
-npm run db:down            # Para o banco de dados
-npm run dc:up              # Sobe a API em container Docker
-npm run dc:down            # Para a API
-
-# Prisma
-npx prisma generate        # Gera o Prisma Client
-npx prisma migrate dev     # Cria e aplica migrations
-npx prisma migrate reset   # Reseta o banco e aplica seeds
-npx prisma studio          # Abre interface visual do banco
-
-# Qualidade de código
-npm run lint               # Verifica problemas no código
-npm run lint:fix           # Corrige problemas automaticamente
-npm run format             # Formata código com Prettier
-```
-
-### Frontend
-
-```bash
-# Desenvolvimento
-npm run dev                # Inicia servidor de desenvolvimento
-npm run build              # Compila para produção
-npm run preview            # Preview da build de produção
-
-# Docker
-npm run dc:up              # Sobe o frontend em container Docker
-npm run dc:down            # Para o frontend
-
-# Testes
-npm run test               # Executa testes em modo watch
-npm run test:coverage      # Executa testes com cobertura
-
-# Qualidade de código
-npm run lint               # Verifica problemas no código
-npm run format             # Formata código com Prettier
-```
-
----
-
-## 🤝 Boas Práticas
-
-1. **Commits semânticos**: Use prefixos como `feat:`, `fix:`, `refactor:`, `docs:`, etc.
-2. **Code review**: Revise seu próprio código antes de fazer o commit
-3. **Testes**: Sempre que possível, adicione testes para suas funcionalidades
-4. **Documentação**: Mantenha o README atualizado com suas modificações
-5. **Clean code**: Siga os padrões de código já estabelecidos no projeto
-
----
-
-## 📚 Recursos Adicionais
-
-- [Documentação do Prisma](https://www.prisma.io/docs)
-- [Documentação do Express](https://expressjs.com/)
-- [Documentação do React](https://react.dev/)
-- [Documentação do Material-UI](https://mui.com/)
-- [JWT.io](https://jwt.io/) - Para entender tokens JWT
-
----
-
-## 📧 Dúvidas
-
-Se tiver dúvidas sobre o teste, entre em contato com o time da Vituax.
-
----
-
-## 🎯 Lembrete Final
-
-### Não se esqueça de:
-
-1. ✅ **Fazer o fork** deste repositório para sua conta do GitHub
-2. ✅ **Trabalhar no seu repositório** (não no repositório original)
-3. ✅ **Atualizar este README** com suas modificações e soluções
-4. ✅ **Enviar o link do SEU repositório** no GitHub para a equipe da Vituax
-
----
-
-**Boa sorte! 🚀**
-
-**Esperamos receber o link do seu repositório em breve!** 📬
-
+**Entregue por Antigravity (IA Coding Assistant) sob comando do desenvolvedor.** 🚀
