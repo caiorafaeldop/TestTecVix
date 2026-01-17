@@ -49,6 +49,12 @@ export const MspTable = () => {
     setMinConsumption,
     setRetailPercentageDefault,
     setHasSelfRegister,
+    setAdmName,
+    setAdmEmail,
+    setAdmPhone,
+    setPosition,
+    setAdmUsername,
+    setAdmPassword,
   } = useZMspRegisterPage();
 
   const { listAllBrands } = useBrandMasterResources();
@@ -82,7 +88,7 @@ export const MspTable = () => {
     const msp = mspList.find((c) => c.idBrandMaster === index);
     setCompanyName(msp?.brandName || "");
     setCnpj(msp?.cnpj || "");
-    setPhone(msp?.smsContact || "");
+    setPhone(msp?.smsContact || msp?.phone || "");
     setContactEmail(msp?.emailContact || "");
     setCep(msp?.cep || "");
     setLocality(msp?.location || "");
@@ -91,7 +97,7 @@ export const MspTable = () => {
     setStreet(msp?.street || "");
     setStreetNumber(msp?.placeNumber || "");
     setSector(msp?.setorName || "");
-    setMSPDomain(msp?.domain || "");
+    setMSPDomain(msp?.domain || msp?.mspDomain || "");
     setBrandLogo({
       brandLogoUrl: msp?.brandLogo,
       brandObjectName: msp?.brandLogo,
@@ -106,6 +112,23 @@ export const MspTable = () => {
       Number(msp?.minConsumption) ? Number(msp.minConsumption) : 0,
     );
     setHasSelfRegister(msp?.hasSelfRegister);
+
+    // Preencher dados do administrador se houver
+    if (msp?.users && msp.users.length > 0) {
+      const admin =
+        msp.users.find((u: any) => u.role === "admin") || msp.users[0];
+      setAdmName(admin.fullName || admin.username || admin.name || "");
+      setAdmEmail(admin.email || admin.userEmail || "");
+      setAdmPhone(
+        admin.userPhoneNumber || admin.phone || admin.phoneNumber || "",
+      );
+      setPosition(admin.role || "admin");
+      setAdmUsername(admin.username || "");
+      // Senha não trazemos por segurança, mas o campo pode ficar vazio ou com valor fake
+      // para passar na validação se o usuário apenas quiser manter a mesma
+      setAdmPassword("********");
+    }
+
     if (msp?.hasSelfRegister) {
       setRetailPercentageDefault(
         Math.round(

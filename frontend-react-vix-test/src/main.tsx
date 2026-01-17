@@ -6,16 +6,18 @@ import "./configs/i18n.ts";
 import { RouterProvider } from "react-router-dom";
 import { appRoutes } from "./routes/_index.tsx";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { MuiThemeProvider } from "./theme/MuiThemeProvider";
 const queryClient = new QueryClient();
 
-createRoot(document.getElementById("root")!).render(
+  createRoot(document.getElementById("root")!).render(
   <>
     <QueryClientProvider client={queryClient}>
-      <ToastContainer theme="colored" />
-      <RouterProvider
-        router={appRoutes}
-        future={{ v7_startTransition: true }}
-      />
+      <MuiThemeProvider>
+        <RouterProvider
+            router={appRoutes}
+            future={{ v7_startTransition: true }}
+        />
+      </MuiThemeProvider>
     </QueryClientProvider>
   </>,
 );

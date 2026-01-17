@@ -1,6 +1,8 @@
 {
   "access": "Acesse sua conta",
-  "register": "Registrar",
+  "dontHaveAccount": "Não tem uma conta?",
+  "alreadyHaveAccount": "Já tem uma conta?",
+  "register": "Registrar uma nova conta",
   "email": "E-mail",
   "password": "Senha",
   "confirmPassword": "Confirmar senha",

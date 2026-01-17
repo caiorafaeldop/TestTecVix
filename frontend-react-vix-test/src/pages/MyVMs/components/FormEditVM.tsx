@@ -43,7 +43,8 @@ export const FormEditVM = ({ onClose }: IProps) => {
   } = useVmResource();
 
   const { statusHashMap } = useStatusInfo();
-  const { currentVM, setCurrentVM } = useZMyVMsList();
+  const { currentVM, setCurrentVM, updateVMInList, removeVMFromList } =
+    useZMyVMsList();
   const [vmPassword, setVmPassword] = useState(currentVM.pass);
   const [vmName, setVmName] = useState(currentVM.vmName);
   const [vmSO, setVmSO] = useState<TOptions>({
@@ -103,7 +104,7 @@ export const FormEditVM = ({ onClose }: IProps) => {
     setOpenConfirm(false);
     const isValidPass = validPassword(vmPassword);
     if (!isValidPass) return;
-    await updateVM(
+    const updatedVM = await updateVM(
       {
         ...vm,
         vmName: vmName,
@@ -116,6 +117,7 @@ export const FormEditVM = ({ onClose }: IProps) => {
       },
       currentVM.idVM,
     );
+    if (updatedVM) updateVMInList(updatedVM);
     onClose(true);
   };
 
@@ -123,16 +125,27 @@ export const FormEditVM = ({ onClose }: IProps) => {
     setOpenDeleteModal(false);
     const response = await deleteVM(currentVM.idVM);
     if (!response) return;
+    removeVMFromList(currentVM.idVM);
     setCurrentVM(null);
     onClose(true);
   };
 
   const handleStopVM = async () => {
+    const updatedVM = await updateVMStatus({
+      idVM: currentVM.idVM,
+      status: "STOPPED",
+    });
+    if (updatedVM) updateVMInList(updatedVM);
     setStatus("STOPPED");
     onClose(true);
   };
 
   const handleStartVM = async () => {
+    const updatedVM = await updateVMStatus({
+      idVM: currentVM.idVM,
+      status: "RUNNING",
+    });
+    if (updatedVM) updateVMInList(updatedVM);
     setStatus("RUNNING");
     onClose(true);
   };

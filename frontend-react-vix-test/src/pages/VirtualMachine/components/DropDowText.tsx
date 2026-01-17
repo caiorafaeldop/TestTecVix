@@ -42,7 +42,7 @@ export const DropDowText = ({
     <Stack
       sx={{
         width: "100%",
-        gap: "12px",
+        gap: "4px",
         ...sxContainer,
       }}
     >
@@ -68,7 +68,7 @@ export const DropDowText = ({
             sx={{
               "& .MuiAutocomplete-input": {
                 color: theme[mode].primary,
-                fontSize: "14px",
+                fontSize: "12px",
                 "&.Mui-disabled": {
                   cursor: "not-allowed",
                 },
@@ -107,7 +107,7 @@ export const DropDowText = ({
           sx: {
             backgroundColor: theme[mode].mainBackground,
             color: theme[mode].primary,
-            fontSize: "14px",
+            fontSize: "12px",
             gap: "4px",
             "& .MuiAutocomplete-option": {
               padding: "4px 12px",
@@ -121,7 +121,7 @@ export const DropDowText = ({
           backgroundColor: "transparent",
           borderRadius: "12px",
           "& .MuiOutlinedInput-root": {
-            height: "40px",
+            height: "30px",
             backgroundColor: theme[mode].grayLight,
             borderRadius: "12px",
             "& fieldset": {

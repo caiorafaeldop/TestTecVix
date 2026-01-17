@@ -3,32 +3,33 @@ import { TextRob16Font1S } from "../../../../../components/Text1S";
 import { useZTheme } from "../../../../../stores/useZTheme";
 import { TextRob14Font1Xs } from "../../../../../components/Text1Xs";
 import { useDropzone } from "react-dropzone";
-import { useUploadFile } from "../../../../../hooks/useUploadFile";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UploadFileIcon } from "../../../../../icons/UploadFileIcon";
 import { TextRob12Font2Xs } from "../../../../../components/Text2Xs";
 import { CircleIcon } from "../../../../../icons/CircleIcon";
 import { useZUserProfile } from "../../../../../stores/useZUserProfile";
+import { useUserResources } from "../../../../../hooks/useUserResources";
 
 export const PerfilPhotoUpload = () => {
   const { theme, mode } = useZTheme();
   const { t } = useTranslation();
-  const { handleUpload, isUploading } = useUploadFile();
-  const [uploadedFile, setUploadedFile] = useState<string | null>("");
-  const { setImage } = useZUserProfile();
+  const { updateAvatar, isLoading } = useUserResources();
+  const { setImage, profileImgUrl } = useZUserProfile();
+  const [uploadedFile, setUploadedFile] = useState<string | null>(profileImgUrl);
 
   const onDrop = async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
 
     const file = acceptedFiles[0]; // Seleciona o primeiro arquivo
-    const response = await handleUpload(file);
+    const response = await updateAvatar(file);
 
-    if (response && response.url) {
-      setUploadedFile(response.url); // Atualiza a URL do logo carregado
+    if (response) {
+      const previewUrl = URL.createObjectURL(file);
+      setUploadedFile(previewUrl);
       setImage({
-        imageUrl: response.url,
-        objectName: response.objectName,
+        imageUrl: previewUrl,
+        objectName: "",
       });
     }
   };
@@ -40,6 +41,10 @@ export const PerfilPhotoUpload = () => {
     });
     setUploadedFile("");
   };
+
+  useEffect(() => {
+    setUploadedFile(profileImgUrl || null);
+  }, [profileImgUrl]);
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -94,7 +99,7 @@ export const PerfilPhotoUpload = () => {
               userSelect: "none",
             }}
           >
-            {isUploading ? t("whiteLabel.loading") : t("whiteLabel.clickHere")}
+            {isLoading ? t("whiteLabel.loading") : t("whiteLabel.clickHere")}
           </TextRob12Font2Xs>
         </Box>
         {uploadedFile && (
@@ -118,7 +123,6 @@ export const PerfilPhotoUpload = () => {
           </Box>
         )}
         <Stack sx={{ gap: "32px" }}>
-          {/* above stack buttons of change and remove logo */}
           <Stack
             sx={{
               display: "flex",
@@ -168,12 +172,11 @@ export const PerfilPhotoUpload = () => {
                   background: "none",
                 },
               }}
-              onClick={handleRemoveLogo} // Remove o logo
+              onClick={handleRemoveLogo}
             >
               {t("profileAndNotifications.removeImage")}
             </Button>
           </Stack>
-          {/* above stack of size and format infos */}
           <Stack
             sx={{
               gap: "8px",

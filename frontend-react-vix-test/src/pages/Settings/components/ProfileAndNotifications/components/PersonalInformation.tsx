@@ -15,7 +15,7 @@ import { PerfilPhotoUpload } from "./PerfilPhotoUpload";
 export const PersonalInformation = () => {
   const { t } = useTranslation();
   const { theme, mode } = useZTheme();
-  const { username, userEmail, userPhoneNumber } = useZUserProfile();
+  const { username, userEmail, userPhoneNumber, fullName } = useZUserProfile();
   const {
     userEmail: userEmailForm,
     userName,
@@ -200,7 +200,7 @@ export const PersonalInformation = () => {
     setFormProfileNotifications({
       fullNameForm: {
         ...fullNameForm,
-        value: "",
+        value: fullName || "",
         errorMessage: "",
       },
       userName: {
@@ -219,7 +219,7 @@ export const PersonalInformation = () => {
         errorMessage: "",
       },
     });
-  }, []);
+  }, [username, userEmail, userPhoneNumber, fullName]);
 
   return (
     <Stack

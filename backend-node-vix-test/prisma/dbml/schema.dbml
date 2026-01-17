@@ -26,6 +26,13 @@ Table brandMaster {
   cityCode Int
   district String
   stripeUserId String
+  isStripeActive Boolean [default: false]
+  idBrandTheme Int
+  discountRate Float
+  minConsumption Float
+  retailPercentageDefault Float
+  hasSelfRegister Boolean [default: false]
+  hasPrepaid Boolean [default: false]
   isPoc Boolean [default: false]
   contract String
   contractAt DateTime
@@ -44,6 +51,8 @@ Table vM {
   ram Int [not null]
   disk Int [not null]
   hasBackup Boolean [default: false]
+  pass String
+  location ETaskLocation
   idBrandMaster Int
   status EVMStatus
   createdAt DateTime [default: `now()`]
@@ -62,6 +71,8 @@ Table user {
   role ERole [not null, default: 'member']
   idBrandMaster Int
   isActive Boolean [default: true]
+  fullName String
+  userPhoneNumber String
   lastLoginDate DateTime
   createdAt DateTime [default: `now()`]
   updatedAt DateTime [default: `now()`]
@@ -79,6 +90,13 @@ Enum ERole {
   admin
   manager
   member
+}
+
+Enum ETaskLocation {
+  BR_SAO_PAULO
+  US_EAST_N_VIRGINIA
+  US_WEST_N_CALIFORNIA
+  EU_WEST_IRELAND
 }
 
 Ref: vM.idBrandMaster > brandMaster.idBrandMaster

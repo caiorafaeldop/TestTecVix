@@ -13,22 +13,20 @@ export const useVerifyToken = () => {
       ? `/user-vituax/verify-pincode/${idUser}`
       : `/user/verify-pincode/${idUser}`;
 
-    setIsLoading(true);
-    const response = await api.post<{ token: string | null }>({
-      url,
-      data: { pinCode },
-      tryRefetch: true,
-    });
+    try {
+      const response = await api.post<{ token: string | null }>(url, {
+        pinCode,
+      });
 
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
-      return;
+      if (!response.data || !response.data.token) return;
+      setUser({ token: response.data.token });
+
+      return response.data;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Erro ao verificar PIN");
+    } finally {
+      setIsLoading(false);
     }
-    if (!response.data || !response.data.token) return;
-    setUser({ token: response.data.token });
-
-    return response.data;
   };
   return { isLoading, verifyPinCode };
 };

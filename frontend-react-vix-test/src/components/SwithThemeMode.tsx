@@ -8,18 +8,22 @@ export const SwithThemeMode = () => {
 
   return (
     <Stack
-      className="w-fit"
       sx={{
         alignItems: "center",
         justifyContent: "center",
+        width: "40px",
+        height: "40px",
       }}
     >
       <IconButton
         type="button"
         sx={{
           p: 0,
-          marginRight: 0.5,
-          marginLeft: 0.5,
+          width: "24px",
+          height: "24px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           "&:hover": {
             backgroundColor: "transparent",
           },
@@ -27,9 +31,15 @@ export const SwithThemeMode = () => {
         onClick={toggleMode}
       >
         {mode === "dark" ? (
-          <LightModeIcon fill={theme[mode].blueMedium} />
+          <LightModeIcon 
+            fill={theme[mode].blueMedium} 
+            style={{ width: '22px', height: '22px' }} 
+          />
         ) : (
-          <HalfMoon fill={theme[mode].blueMedium} />
+          <HalfMoon 
+            fill={theme[mode].blueMedium} 
+            style={{ width: '22px', height: '22px' }} 
+          />
         )}
       </IconButton>
     </Stack>

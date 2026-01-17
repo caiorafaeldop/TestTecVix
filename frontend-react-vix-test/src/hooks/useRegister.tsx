@@ -46,21 +46,18 @@ export const useRegister = () => {
       return;
     }
 
-    const response = await api.post({
-      url: "/user",
-      data: {
+    try {
+      await api.post("/user", {
         username,
         password,
         email,
         idBrandMaster: idBrand,
-      },
-    });
+      });
 
-    if (response.error) {
-      toast.error(response.message);
-      return;
+      return navigate("/login");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Erro ao registrar");
     }
-    return navigate("/login");
   };
 
   return { goRegister };

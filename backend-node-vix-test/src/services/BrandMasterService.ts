@@ -9,6 +9,9 @@ import { AppError } from "../errors/AppError";
 import { ERROR_MESSAGE } from "../constants/erroMessages";
 import { STATUS_CODE } from "../constants/statusCode";
 
+import bcrypt from "bcryptjs";
+import { prisma } from "../database/client";
+
 export class BrandMasterService {
   constructor() {}
   private brandMasterModel = new BrandMasterModel();
@@ -37,8 +40,34 @@ export class BrandMasterService {
       validData.pocOpenedAt = new Date();
     }
 
+    // Extract admin data
+    const {
+      admName,
+      admEmail,
+      admPhone,
+      admPassword,
+      admUsername,
+      ...brandData
+    } = validData;
+
     const newBrandMaster =
-      await this.brandMasterModel.createNewBrandMaster(validData);
+      await this.brandMasterModel.createNewBrandMaster(brandData as any);
+
+    // Create admin user if data is provided
+    if (admEmail && admPassword) {
+      const hashedPassword = await bcrypt.hash(admPassword, 10);
+      await prisma.user.create({
+        data: {
+          username: admUsername || admEmail,
+          email: admEmail,
+          password: hashedPassword,
+          fullName: admName,
+          userPhoneNumber: admPhone,
+          role: "admin",
+          idBrandMaster: newBrandMaster.idBrandMaster,
+        } as any,
+      });
+    }
 
     return newBrandMaster;
   }
@@ -107,5 +136,17 @@ export class BrandMasterService {
     return {
       brandMaster: deletedBrand,
     };
+  }
+  async updateLogo(idBrandMaster: number, logoPath: string) {
+    const oldBrandMaster = await this.brandMasterModel.getById(idBrandMaster);
+    if (!oldBrandMaster) {
+      throw new AppError(
+        ERROR_MESSAGE.BRAND_MASTER_NOT_FOUND,
+        STATUS_CODE.NOT_FOUND,
+      );
+    }
+    return this.brandMasterModel.updateBrandMaster(idBrandMaster, {
+      brandLogo: logoPath,
+    });
   }
 }

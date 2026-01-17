@@ -9,7 +9,7 @@ export const VmsCardsList = () => {
   return (
     <Stack
       sx={{
-        backgroundColor: theme[mode].light,
+        backgroundColor: theme[mode].mainBackground,
         padding: "0px 8px",
         width: "100%",
       }}

@@ -20,6 +20,7 @@ interface IMspRegisterPage {
   admEmail: string;
   admPhone: string;
   position: string;
+  admUsername: string;
   admPassword: string;
   showError: boolean;
   showErrorPageTwo: boolean;
@@ -66,6 +67,7 @@ const INIT_STATE: IMspRegisterPage = {
   admEmail: "",
   admPhone: "",
   position: "admin",
+  admUsername: "",
   admPassword: "",
   showError: false,
   mspDomain: "",
@@ -122,6 +124,7 @@ interface IMspRegisterPageState extends IMspRegisterPage {
   setAdmEmail: (admEmail: string) => void;
   setAdmPhone: (admPhone: string) => void;
   setPosition: (position: string) => void;
+  setAdmUsername: (admUsername: string) => void;
   setMSPDomain: (domain: string) => void;
   setAdmPassword: (admPassword: string) => void;
   setShowError: (showError: boolean) => void;
@@ -186,6 +189,7 @@ export const useZMspRegisterPage = create<IMspRegisterPageState>((set) => ({
   setAdmEmail: (admEmail: string) => set((state) => ({ ...state, admEmail })),
   setAdmPhone: (admPhone: string) => set((state) => ({ ...state, admPhone })),
   setPosition: (position: string) => set((state) => ({ ...state, position })),
+  setAdmUsername: (admUsername: string) => set((state) => ({ ...state, admUsername })),
   setMSPDomain: (domain: string) =>
     set((state) => ({ ...state, mspDomain: domain })),
   setAdmPassword: (admPassword: string) =>

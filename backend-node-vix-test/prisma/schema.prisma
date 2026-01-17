@@ -40,6 +40,13 @@ model brandMaster {
   cityCode      Int?
   district      String?
   stripeUserId  String?
+  isStripeActive Boolean?  @default(false)
+  idBrandTheme  Int?
+  discountRate  Float?
+  minConsumption Float?
+  retailPercentageDefault Float?
+  hasSelfRegister Boolean? @default(false)
+  hasPrepaid     Boolean? @default(false)
   isPoc         Boolean?  @default(false)
   contract      String?
   contractAt    DateTime? @db.DateTime(0)
@@ -57,7 +64,9 @@ model vM {
   vCPU          Int
   ram           Int
   disk          Int
-  hasBackup     Boolean?     @default(false)
+  hasBackup     Boolean?       @default(false)
+  pass          String?
+  location      ETaskLocation?
   idBrandMaster Int?
   status        EVMStatus?
   createdAt     DateTime?    @default(now()) @db.DateTime(0)
@@ -78,6 +87,8 @@ model user {
   role          ERole     @default(member)
   idBrandMaster Int?
   isActive      Boolean?  @default(true)
+  fullName      String?
+  userPhoneNumber String?
   lastLoginDate DateTime? @db.DateTime(0)
   createdAt     DateTime? @default(now()) @db.DateTime(0)
   updatedAt     DateTime? @default(now()) @db.DateTime(0)
@@ -98,4 +109,11 @@ enum ERole {
   admin
   manager
   member
+}
+
+enum ETaskLocation {
+  BR_SAO_PAULO
+  US_EAST_N_VIRGINIA
+  US_WEST_N_CALIFORNIA
+  EU_WEST_IRELAND
 }

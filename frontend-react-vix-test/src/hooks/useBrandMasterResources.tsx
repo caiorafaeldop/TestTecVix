@@ -85,6 +85,7 @@ interface ICreateNewBrandMaster {
   admEmail: string;
   admPhone: string;
   admPassword: string;
+  admUsername: string;
   brandLogo: string;
   position: "admin";
   mspDomain: string;
@@ -131,6 +132,7 @@ export interface INewMSPResponse {
   hasSelfRegister?: boolean;
   hasPrepaid?: boolean;
   retailPercentageDefault?: string | number;
+  users?: any[];
 }
 
 export const useBrandMasterResources = () => {
@@ -153,25 +155,23 @@ export const useBrandMasterResources = () => {
     domain,
   }: IUpdateBrandMaster) => {
     if (!role || (role !== "admin" && role !== "manager")) return;
-    const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.put({
-      url: `/brand-master/${idBrand}`,
-      auth,
-      data: {
+    try {
+      const response = await api.put(`/brand-master/${idBrand}`, {
         brandName,
         idBrandTheme,
         brandLogo,
         domain,
-      },
-    });
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
+      });
+      setIsLoading(false);
+      toast.success(t("whiteLabel.dnsSaved"));
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return;
     }
-    toast.success(t("whiteLabel.dnsSaved"));
-    return response.data;
   };
 
   const updateBrandMasterInfo = async (data: Partial<IBrandMasterResource>) => {
@@ -185,49 +185,45 @@ export const useBrandMasterResources = () => {
       return;
     }
 
-    const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.put<IBrandMasterResource>({
-      url: `/brand-master/${idBrand}`,
-      auth,
-      data,
-    });
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
+    try {
+      const response = await api.put<IBrandMasterResource>(
+        `/brand-master/${idBrand}`,
+        data
+      );
+      setIsLoading(false);
+      const dataResponse = response.data;
+      const { url } = await getFileByObjectName(dataResponse.brandLogo);
+      setBrandInfo({
+        brandName: dataResponse.brandName,
+        brandLogo: url || "",
+        domain: dataResponse.domain || "",
+        setorName: dataResponse.setorName || "",
+        fieldName: dataResponse.fieldName || "",
+        location: dataResponse.location || "",
+        city: dataResponse.city || "",
+        emailContact: dataResponse.emailContact || "",
+        smsContact: dataResponse.smsContact || "",
+        timezone: dataResponse.timezone || "",
+        stripeUserId: dataResponse?.stripeUserId || null,
+        discountRate: Number(dataResponse?.discountRate) || 1,
+        manual: dataResponse?.manual || null,
+        termsOfUse: dataResponse?.termsOfUse || null,
+        privacyPolicy: dataResponse?.privacyPolicy || null,
+        hasSelfRegister: dataResponse?.hasSelfRegister || false,
+      });
+
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return;
     }
-    const dataResponse = response.data;
-    const { url } = await getFileByObjectName(dataResponse.brandLogo);
-    setBrandInfo({
-      brandName: dataResponse.brandName,
-      brandLogo: url || "",
-      domain: dataResponse.domain || "",
-      setorName: dataResponse.setorName || "",
-      fieldName: dataResponse.fieldName || "",
-      location: dataResponse.location || "",
-      city: dataResponse.city || "",
-      emailContact: dataResponse.emailContact || "",
-      smsContact: dataResponse.smsContact || "",
-      timezone: dataResponse.timezone || "",
-      stripeUserId: dataResponse?.stripeUserId || null,
-      discountRate: Number(dataResponse?.discountRate) || 1,
-      manual: dataResponse?.manual || null,
-      termsOfUse: dataResponse?.termsOfUse || null,
-      privacyPolicy: dataResponse?.privacyPolicy || null,
-      hasSelfRegister: dataResponse?.hasSelfRegister || false,
-    });
-
-    return response.data;
   };
 
   const updateDomain = async (domain: string) => {
     if (role !== "admin" && role !== "manager") {
-      toast.error(t("generic.errorOlnlyAdmin"));
-      return;
-    }
-
-    if (role !== "admin" && true) {
       toast.error(t("generic.errorOlnlyAdmin"));
       return;
     }
@@ -237,23 +233,20 @@ export const useBrandMasterResources = () => {
       return;
     }
 
-    const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.post({
-      url: `/dns/register`,
-      auth,
-      data: {
+    try {
+      const response = await api.post(`/dns/register`, {
         idBrandMaster: idBrand,
         domain,
-      },
-    });
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
+      });
+      setIsLoading(false);
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return;
     }
-
-    return response.data;
   };
 
   const createAnewBrandMaster = async (data: ICreateNewBrandMaster) => {
@@ -263,17 +256,14 @@ export const useBrandMasterResources = () => {
       toast.error(t("generic.errorOlnlyAdmin"));
       return;
     }
-    const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.post<INewMSPResponse>({
-      url: `/brand-master`,
-      auth,
-      data: {
+    try {
+      const response = await api.post<INewMSPResponse>(`/brand-master`, {
         brandName: data.companyName,
         idBrandTheme: 1,
         isActive: true,
         brandLogo: data.brandLogo,
-        domain: undefined,
+        domain: data.mspDomain,
         setorName: data.sector,
         fieldName: undefined,
         location: data.locality,
@@ -291,36 +281,38 @@ export const useBrandMasterResources = () => {
         isPoc: Boolean(data?.isPoc),
         discountRate: data?.discountRate,
         minConsumption: data?.minConsumption,
-      },
-    });
+        admName: data.admName,
+        admEmail: data.admEmail,
+        admPhone: data.admPhone,
+        admPassword: data.admPassword,
+        admUsername: data.admUsername,
+      });
 
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
+      setIsLoading(false);
+      return { brandMaster: response.data };
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return;
     }
-
-    return { brandMaster: response.data };
   };
 
   const listAllBrands = async () => {
-    const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.get<IListAll<INewMSPResponse>>({
-      url: "/brand-master",
-      auth,
-    });
-    setIsLoading(true);
-
-    if (response.error) {
-      toast.error(response.message);
-
+    try {
+      const response = await api.get<IListAll<INewMSPResponse>>("/brand-master");
+      setIsLoading(false);
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return {
         totalCount: 0,
         result: [],
       };
     }
-    return response.data;
   };
 
   const deleteBrandMaster = async (brandMasterId: number | string) => {
@@ -330,21 +322,20 @@ export const useBrandMasterResources = () => {
       toast.error(t("generic.errorOlnlyAdmin"));
       return;
     }
-    const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.delete<{
-      brandMaster: IBrandMasterBasicInfo;
-    }>({
-      url: `/brand-master/${brandMasterId}`,
-      auth,
-    });
+    try {
+      const response = await api.delete<{
+        brandMaster: IBrandMasterBasicInfo;
+      }>(`/brand-master/${brandMasterId}`);
 
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
+      setIsLoading(false);
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return;
     }
-    return response.data;
   };
 
   const editBrandMaster = async (
@@ -357,59 +348,117 @@ export const useBrandMasterResources = () => {
       toast.error(t("generic.errorOlnlyAdmin"));
       return;
     }
-    const auth = await getAuth();
-    const response = await api.put<INewMSPResponse>({
-      url: `/brand-master/${brandMasterId}`,
-      auth,
-      data: {
-        brandName: data.brandName,
-        emailContact: data.emailContact,
-        cnpj: data.cnpj,
-        setorName: data.setorName,
-        location: data.location,
-        state: data.state,
-        city: data.city,
-        cep: data.cep,
-        street: data.street,
-        placeNumber: data.placeNumber,
-        smsContact: data.smsContact,
-        brandLogo: data.brandLogo,
-        cityCode: data?.cityCode ? data.cityCode : undefined,
-        district: data?.district ? data.district : undefined,
-        isPoc: Boolean(data?.isPoc),
-        discountRate: data?.discountRate,
-        minConsumption: data?.minConsumption,
-        retailPercentageDefault: Number(data?.retailPercentageDefault)
-          ? Number(data?.retailPercentageDefault)
-          : undefined,
-      },
-    });
+    try {
+      const response = await api.put<INewMSPResponse>(
+        `/brand-master/${brandMasterId}`,
+        {
+          brandName: data.brandName,
+          emailContact: data.emailContact,
+          cnpj: data.cnpj,
+          setorName: data.setorName,
+          location: data.location,
+          state: data.state,
+          city: data.city,
+          cep: data.cep,
+          street: data.street,
+          placeNumber: data.placeNumber,
+          smsContact: data.smsContact,
+          brandLogo: data.brandLogo,
+          domain: data.domain,
+          cityCode: data?.cityCode ? data.cityCode : undefined,
+          district: data?.district ? data.district : undefined,
+          isPoc: Boolean(data?.isPoc),
+          discountRate: data?.discountRate,
+          minConsumption: data?.minConsumption,
+          retailPercentageDefault: Number(data?.retailPercentageDefault)
+            ? Number(data?.retailPercentageDefault)
+            : undefined,
+        }
+      );
 
-    if (response.error) {
-      toast.error(response.message);
+      return {
+        brandMaster: response.data,
+      };
+    } catch (error: any) {
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return;
     }
-
-    return {
-      brandMaster: response.data,
-    };
   };
 
   const getSelf = async () => {
     if (!idBrand) return null;
-    const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.get<INewMSPResponse>({
-      url: `/brand-master/${idBrand}`,
-      auth,
-    });
-    setIsLoading(true);
-
-    if (response.error) {
-      toast.error(response.message);
+    try {
+      const response = await api.get<INewMSPResponse>(`/brand-master/${idBrand}`);
+      setIsLoading(false);
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return null;
     }
-    return response.data;
+  };
+
+  const updateLogo = async (file: File) => {
+    if (!role || role !== "admin") {
+      toast.error(t("generic.errorOlnlyAdmin"));
+      return;
+    } 
+    const formData = new FormData();
+    formData.append("logo", file);
+
+    const targetId = idBrand || idBrandInfo;
+
+    if (!targetId) {
+        toast.error(t("generic.errorToSaveData"));
+        return;
+    }
+
+    setIsLoading(true);
+    try {
+        const response = await api.patch(`/brand-master/${targetId}/logo`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        setIsLoading(false);
+
+        const brandData = response.data;
+        // Need to resolve explicit URL if backend returns relative path
+        // Assuming backend returns full URL or we use a helper. 
+        // Existing code used getFileByObjectName. 
+        // If backend returns updated object, let's look at `brandLogo` property.
+        
+        // Simple assignment if brandLogo is the URL or path
+        
+        const { url } = await getFileByObjectName(brandData.brandLogo);
+
+        setBrandInfo({
+          brandName: brandData.brandName, // fixed spread type issue
+          brandLogo: url || "",
+          domain: brandData.domain || "",
+          setorName: brandData.setorName || "",
+          fieldName: brandData.fieldName || "",
+          location: brandData.location || "",
+          city: brandData.city || "",
+          emailContact: brandData.emailContact || "",
+          smsContact: brandData.smsContact || "",
+          timezone: brandData.timezone || "",
+          stripeUserId: brandData?.stripeUserId || null,
+          discountRate: Number(brandData?.discountRate) || 1,
+          manual: brandData?.manual || null,
+          termsOfUse: brandData?.termsOfUse || null,
+          privacyPolicy: brandData?.privacyPolicy || null,
+          hasSelfRegister: brandData?.hasSelfRegister || false,
+        });
+        toast.success(t("whiteLabel.dnsSaved"));
+        return brandData;
+    } catch (error: any) {
+        setIsLoading(false);
+        const message = error.response?.data?.message || "Failed to upload logo";
+        toast.error(message);
+        return;
+    }
   };
 
   return {
@@ -422,6 +471,7 @@ export const useBrandMasterResources = () => {
     deleteBrandMaster,
     editBrandMaster,
     getSelf,
+    updateLogo,
   };
 };
 

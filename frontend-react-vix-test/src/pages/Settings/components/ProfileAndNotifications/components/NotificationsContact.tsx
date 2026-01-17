@@ -125,7 +125,7 @@ export const NotificationsContact = () => {
         errorMessage: "",
       },
     });
-  }, []);
+  }, [emailContact, smsContact, timezone]);
 
   return (
     <Stack

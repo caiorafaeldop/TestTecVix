@@ -13,15 +13,15 @@ export const SugestionsCards = () => {
     <Stack
       sx={{
         padding: "24px",
-        gap: "12px",
+        gap: "16px",
         width: "100%",
       }}
     >
       <TextRob20Font1M
         sx={{
           color: theme[mode].primary,
-          fontSize: "20px",
-          fontWeight: "500",
+          fontSize: "18px",
+          fontWeight: "600",
           lineHeight: "24px",
         }}
       >
@@ -31,7 +31,8 @@ export const SugestionsCards = () => {
       <Stack
         sx={{
           flexDirection: "row",
-          gap: "8px",
+          flexWrap: "wrap",
+          gap: "16px",
         }}
       >
         <CardSugestion

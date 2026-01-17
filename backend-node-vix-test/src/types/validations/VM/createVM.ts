@@ -19,6 +19,7 @@ export const vMCreatedSchema = z.object({
   idBrandMaster: z.number().nullable().optional(),
   status: EVMStatus.optional(),
   os: z.string().optional(),
+  pass: z.string().optional(),
 });
 
 export type TVMCreate = z.infer<typeof vMCreatedSchema>;

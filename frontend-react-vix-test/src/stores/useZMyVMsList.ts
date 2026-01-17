@@ -69,6 +69,8 @@ interface IVMListState extends IVMList {
   ) => void;
   setOnlyMyVMs: (onlyMyVMs: boolean) => void;
   setMsps: (msps: { idBrandMaster: number; brandName: string }[]) => void;
+  updateVMInList: (updatedVM: IVMCreatedResponse) => void;
+  removeVMFromList: (idVM: number) => void;
   resetAll: () => void;
 }
 
@@ -90,4 +92,17 @@ export const useZMyVMsList = create<IVMListState>((set) => ({
   setSelectedMSP: (selectedMSP) => set((state) => ({ ...state, selectedMSP })),
   setOnlyMyVMs: (onlyMyVMs) => set((state) => ({ ...state, onlyMyVMs })),
   setMsps: (msps) => set((state) => ({ ...state, msps })),
+  updateVMInList: (updatedVM) =>
+    set((state) => ({
+      ...state,
+      vmList: state.vmList.map((vm) =>
+        vm.idVM === updatedVM.idVM ? updatedVM : vm,
+      ),
+    })),
+  removeVMFromList: (idVM) =>
+    set((state) => ({
+      ...state,
+      vmList: state.vmList.filter((vm) => vm.idVM !== idVM),
+      totalCount: state.totalCount - 1,
+    })),
 }));

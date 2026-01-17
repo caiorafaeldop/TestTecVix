@@ -9,7 +9,7 @@ export const Sidebar = () => {
 
   return (
     <>
-      {width > 1430 ? (
+      {width > 1100 ? (
         <ListItemSidebar />
       ) : (
         <Drawer
@@ -17,7 +17,7 @@ export const Sidebar = () => {
           onClose={() => setIsOpenSideBar(false)}
           disableEnforceFocus
           disableAutoFocus
-          aria-hidden={Boolean(width > 1430)}
+          aria-hidden={Boolean(width > 1100)}
         >
           <ListItemSidebar />
         </Drawer>

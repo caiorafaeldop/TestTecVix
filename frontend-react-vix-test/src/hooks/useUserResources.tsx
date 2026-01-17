@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 
 export interface IUserDB {
-  idUser: number;
+  idUser: string;
   idBrandMaster: number | null;
   username: string;
   email: string;
@@ -19,6 +19,7 @@ export interface IUserDB {
   updatedAt: string | Date;
   deletedAt: string | Date | null;
   fullName?: string;
+  lastLoginDate?: string | Date | null;
 }
 
 interface ICreateNewUser {
@@ -30,6 +31,10 @@ interface ICreateNewUser {
   userPhoneNumber?: string;
   idBrandMaster?: number;
   isActive?: boolean;
+  position?: string;
+  department?: string;
+  companyName?: string;
+  hiringDate?: string;
 }
 
 export const useUserResources = () => {
@@ -39,30 +44,42 @@ export const useUserResources = () => {
   const { t } = useTranslation();
 
   const updateUser = async (data: Partial<IUserDB>) => {
-    const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.put<IUserDB>({
-      url: `/user/${idUser}`,
-      data,
-      auth,
-    });
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
+    try {
+      const response = await api.put<IUserDB>(`/user/${idUser}`, data);
+      setIsLoading(false);
+
+      setUser({
+        profileImgUrl: response.data.profileImgUrl,
+        username: response.data.username,
+        userEmail: response.data.email,
+        idBrand: response.data.idBrandMaster,
+        role: response.data.role,
+        userPhoneNumber: response.data.userPhoneNumber,
+        fullName: response.data.fullName,
+      });
+
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return null;
     }
+  };
 
-    setUser({
-      profileImgUrl: response.data.profileImgUrl,
-      username: response.data.username,
-      userEmail: response.data.email,
-      idBrand: response.data.idBrandMaster,
-
-      role: response.data.role,
-      userPhoneNumber: response.data.userPhoneNumber,
-    });
-
-    return response.data;
+  const updateUserById = async (targetIdUser: string, data: Partial<ICreateNewUser>) => {
+    setIsLoading(true);
+    try {
+      const response = await api.put<IUserDB>(`/user/${targetIdUser}`, data);
+      setIsLoading(false);
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
+      return null;
+    }
   };
 
   const createUserByManager = async (data: ICreateNewUser) => {
@@ -73,24 +90,89 @@ export const useUserResources = () => {
       return null;
     }
 
-    const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.post({
-      url: `/user/new-user`,
-      auth,
-      data: {
+    try {
+      const response = await api.post(`/user`, {
         ...data,
         idBrandMaster,
-      },
-    });
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
+      });
+      setIsLoading(false);
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToSaveData");
+      toast.error(message);
       return null;
     }
-
-    return response.data;
   };
 
-  return { isLoading, updateUser, createUserByManager };
+  const getAllUsers = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.get<IUserDB[]>("/user");
+      setIsLoading(false);
+      return response.data;
+    } catch (error: any) {
+      setIsLoading(false);
+      const message = error.response?.data?.message || t("generic.errorToLoadData");
+      // toast.error(message); // Optional: silent fail or toast
+      return [];
+    }
+  };
+
+  const deleteUser = async (targetIdUser: string) => {
+     setIsLoading(true);
+     try {
+       await api.delete(`/user/${targetIdUser}`);
+       setIsLoading(false);
+       return true;
+     } catch (error: any) {
+       setIsLoading(false);
+       const message = error.response?.data?.message || t("generic.errorToSaveData");
+       toast.error(message);
+       return false;
+     }
+  };
+
+  const updateAvatar = async (file: File) => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    setIsLoading(true);
+    try {
+        const response = await api.patch(`/user/${idUser}/avatar`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        setIsLoading(false);
+
+        // Update local user state
+        setUser({
+            profileImgUrl: response.data.profileImgUrl,
+            username: response.data.username,
+            userEmail: response.data.email,
+            idBrand: response.data.idBrandMaster,
+            role: response.data.role,
+            userPhoneNumber: response.data.userPhoneNumber,
+            fullName: response.data.fullName,
+        });
+
+        return response.data;
+    } catch (error: any) {
+        setIsLoading(false);
+        const message = error.response?.data?.message || "Failed to upload avatar";
+        toast.error(message);
+        return null;
+    }
+  };
+
+  return { 
+    isLoading, 
+    updateUser, 
+    createUserByManager, 
+    updateAvatar,
+    getAllUsers,
+    deleteUser,
+    updateUserById,
+  };
 };

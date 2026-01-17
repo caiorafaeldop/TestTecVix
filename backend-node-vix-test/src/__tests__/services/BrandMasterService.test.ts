@@ -1,8 +1,8 @@
-import { BrandMasterService } from "../../src/services/BrandMasterService";
-import { BrandMasterModel } from "../../src/models/BrandMasterModel";
+import { BrandMasterService } from "../../services/BrandMasterService";
+import { BrandMasterModel } from "../../models/BrandMasterModel";
 // Mocks
-jest.mock("../../src/models/BrandMasterModel");
-jest.mock("../../src/models/LogBrandMasterModel");
+jest.mock("../../models/BrandMasterModel");
+jest.mock("../../models/LogBrandMasterModel");
 
 describe("BrandMasterService", () => {
   let brandMasterService: BrandMasterService;
@@ -10,7 +10,7 @@ describe("BrandMasterService", () => {
 
   beforeEach(() => {
     brandMasterModel = new BrandMasterModel() as jest.Mocked<BrandMasterModel>;
-    brandMasterService = new BrandMasterService(brandMasterModel);
+    brandMasterService = new BrandMasterService();
   });
 
   describe("updateBrandMaster", () => {

@@ -24,7 +24,7 @@ export const CardOne = () => {
         width: "100%",
         boxSizing: "border-box",
         padding: "24px",
-        backgroundColor: theme[mode].mainBackground,
+        backgroundColor: theme[mode].light,
         borderRadius: "24px",
         gap: "24px",
       }}

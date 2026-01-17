@@ -66,6 +66,9 @@ export class BrandMasterModel {
           contains: query.search,
         },
       },
+      include: {
+        users: true,
+      },
       take: limit || undefined,
       skip,
       ...(orderBy.length ? { orderBy } : { orderBy: [{ updatedAt: "desc" }] }),

@@ -1,9 +1,8 @@
-import { Box, Button, Divider, IconButton, Stack } from "@mui/material";
+import { Box, Button, Divider, IconButton, Stack, ClickAwayListener } from "@mui/material";
 import { useZTheme } from "../../../../stores/useZTheme";
 import { useTranslation } from "react-i18next";
 
-import CheckIcon from "@mui/icons-material/Check";
-import CloseIcon from "@mui/icons-material/Close";
+
 import { useEffect, useState } from "react";
 import { shadow } from "../../../../utils/shadow";
 import { makeEllipsis } from "../../../../utils/makeEllipsis";
@@ -40,6 +39,8 @@ export interface IVmCardProps {
   logo?: string;
 }
 
+import { useZUserProfile } from "../../../../stores/useZUserProfile";
+
 export const VmCard = ({
   vmId,
   vmName,
@@ -52,6 +53,7 @@ export const VmCard = ({
   owner,
 }: IVmCardProps) => {
   const { mode, theme } = useZTheme();
+  const { role: currentUserRole } = useZUserProfile();
   const { t } = useTranslation();
   const [vmNameState, setVmNameState] = useState<string | number>(vmName);
   const [cpuState, setCpuState] = useState<number | string>(cpu);
@@ -80,6 +82,7 @@ export const VmCard = ({
     getVMById: getVMByIdResource,
     isLoading,
     getOS,
+    updateVMStatus,
   } = useVmResource();
 
   const getVMById = async () => {
@@ -102,15 +105,26 @@ export const VmCard = ({
   };
 
   const handleCancel = () => {
-    setShowConfirmation(false);
-    setStatusState(preStatusState);
+    if (showConfirmation) {
+      setShowConfirmation(false);
+      setStatusState(preStatusState);
+    }
   };
 
   const handleConfirm = async () => {
     if (statusState !== preStatusState) {
-      setPreStatusState(statusState);
-
-      await getVMById();
+      try {
+        // Chamar API para atualizar status da VM
+        await updateVMStatus({
+          idVM: vmId,
+          status: statusState as "RUNNING" | "STOPPED" | "PAUSED",
+        });
+        setPreStatusState(statusState);
+        await getVMById();
+      } catch (error) {
+        // Reverter em caso de erro
+        setStatusState(preStatusState);
+      }
     }
     setShowConfirmation(false);
   };
@@ -151,10 +165,10 @@ export const VmCard = ({
     taskState?.action === "pending" && taskState?.operation === "start";
 
   const actionExec =
-    Boolean(checkStatus(statusState).isRunning && !hasPandingTaskShutdown) ||
+    Boolean(checkStatus(preStatusState).isRunning && !hasPandingTaskShutdown) ||
     hasPandingTaskStart;
   const actionPause =
-    Boolean(!checkStatus(statusState).isRunning && !hasPandingTaskStart) ||
+    Boolean(!checkStatus(preStatusState).isRunning && !hasPandingTaskStart) ||
     hasPandingTaskShutdown;
 
   useEffect(() => {
@@ -163,19 +177,35 @@ export const VmCard = ({
     }
   }, [updateThisVm, vmId]);
 
-  if (isLoading) return <VmCardSkeleton />;
+  const getStatusText = (status: string | null) => {
+    switch (status) {
+      case "RUNNING":
+        return "Ativo";
+      case "STOPPED":
+        return "Parado";
+      case "PAUSED":
+        return "Pausado";
+      default:
+        return status;
+    }
+  };
+
+  // Tentar evitar o loading skeleton se já tivermos dados (previne "blink" no update)
+  if (isLoading && !vmNameState) return <VmCardSkeleton />;
   return (
     <>
+      <ClickAwayListener onClickAway={handleCancel}>
       <Stack
         sx={{
           height: "315px",
           minWidth: "200px",
           maxWidth: "200px",
           borderRadius: "16px",
-          background: theme[mode].mainBackground,
+          background: theme[mode].light,
           padding: "24px",
           position: "relative",
           boxShadow: `0px 4px 4px ${shadow(mode)}`,
+          overflow: "hidden",
         }}
       >
         {/* VM Name */}
@@ -193,21 +223,23 @@ export const VmCard = ({
           >
             {vmNameState}
           </TextRob20Font1MC>
-          <IconButton
-            onClick={() => setOpenModal(true)}
-            sx={{
-              backgroundColor: theme[mode].blue,
-              padding: "2px",
-              width: "20px",
-              height: "20px",
-              "&:hover": {
+          {currentUserRole !== "member" && (
+            <IconButton
+              onClick={() => setOpenModal(true)}
+              sx={{
                 backgroundColor: theme[mode].blue,
-                opacity: 0.8,
-              },
-            }}
-          >
-            <PencilIcon fill={"#FFFFFF"} />
-          </IconButton>
+                padding: "2px",
+                width: "20px",
+                height: "20px",
+                "&:hover": {
+                  backgroundColor: theme[mode].blue,
+                  opacity: 0.8,
+                },
+              }}
+            >
+              <PencilIcon fill={"#FFFFFF"} />
+            </IconButton>
+          )}
         </Stack>
         {/* Status */}
         <Stack mt={"12px"}>
@@ -217,74 +249,109 @@ export const VmCard = ({
             task={taskState?.task}
           />
         </Stack>
-        {/* Actions */}
-        <Stack
-          sx={{
-            flexDirection: "row",
-            width: "100%",
-            justifyContent: "center",
-            mt: "16px",
-          }}
-        >
-          {/* Start */}
-          <Btn
-            disabled={checkStatus(statusState, taskState?.action).isWaiting}
-            onClick={handleStart}
-            className="w-full"
+        {/* Actions - Animated Sliding Background */}
+        {currentUserRole !== "member" ? (
+          <Stack
             sx={{
-              borderRadius: "8px 0px 0px 8px",
-              padding: "0px",
-              backgroundColor: actionExec ? theme[mode].blue : "transparent",
-              border:
-                checkStatus(statusState, taskState?.action).isStopped ||
-                checkStatus(statusState, taskState?.action).isPaused
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "center",
+              mt: "16px",
+              position: "relative", // Needed for absolute positioning of slider
+              isolation: "isolate",
+            }}
+          >
+            {/* Sliding Background Box */}
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                bottom: 0,
+                width: "50%",
+                backgroundColor: actionPause
+                  ? theme[mode].blueMedium
+                  : theme[mode].blue,
+                borderRadius: actionPause ? "0px 8px 8px 0px" : "8px 0px 0px 8px",
+                left: actionPause ? "50%" : "0%",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)", // Smooth sliding animation
+                zIndex: 0,
+                opacity: actionExec || actionPause ? 1 : 0, // Hide if waiting/loading state
+              }}
+            />
+
+            {/* Start Button */}
+            <Btn
+              disabled={checkStatus(preStatusState, taskState?.action).isWaiting}
+              onClick={handleStart}
+              className="w-full"
+              sx={{
+                zIndex: 1, // Above the slider
+                borderRadius: "8px 0px 0px 8px",
+                padding: "0px",
+                backgroundColor: "transparent", // Transparent to show slider
+                border:
+                  checkStatus(preStatusState, taskState?.action).isStopped ||
+                  checkStatus(preStatusState, taskState?.action).isPaused
+                    ? "1px solid"
+                    : "0px solid",
+                borderColor: actionExec ? "transparent" : theme[mode].tertiary, // No border when active
+              }}
+            >
+              <TextRob12Font2Xs
+                sx={{
+                  color: actionExec ? theme[mode].btnText : theme[mode].tertiary,
+                  fontWeight: actionExec ? "500" : "400",
+                  letterSpacing: "0.5px",
+                  lineHeight: "22px",
+                  transition: "color 0.3s", // Smooth text color transition
+                }}
+              >
+                {t("home.start")}
+              </TextRob12Font2Xs>
+            </Btn>
+
+            {/* Stop/Pause Button */}
+            <Btn
+              disabled={checkStatus(preStatusState, taskState?.action).isWaiting}
+              onClick={handlePaused}
+              className="w-full"
+              sx={{
+                zIndex: 1, // Above the slider
+                borderRadius: "0px 8px 8px 0px",
+                padding: "0px",
+                backgroundColor: "transparent", // Transparent to show slider
+                border: checkStatus(preStatusState, taskState?.action).isRunning
                   ? "1px solid"
                   : "0px solid",
-              borderColor: actionExec ? theme[mode].blue : theme[mode].tertiary,
-            }}
-          >
-            <TextRob12Font2Xs
-              sx={{
-                color: actionExec ? theme[mode].btnText : theme[mode].tertiary,
-                fontWeight: actionExec ? "500" : "400",
-                letterSpacing: "0.5px",
-                lineHeight: "22px",
+                borderColor: actionPause ? "transparent" : theme[mode].tertiary, // No border when active
               }}
             >
-              {t("home.start")}
-            </TextRob12Font2Xs>
-          </Btn>
-          {/* Pause */}
-          <Btn
-            disabled={checkStatus(statusState, taskState?.action).isWaiting}
-            onClick={handlePaused}
-            className="w-full"
+              <TextRob12Font2Xs
+                sx={{
+                  color: actionPause ? theme[mode].btnText : theme[mode].tertiary,
+                  letterSpacing: "0.5px",
+                  fontWeight: actionPause ? "500" : "400",
+                  lineHeight: "22px",
+                  transition: "color 0.3s", // Smooth text color transition
+                }}
+              >
+                {t("home.stop")}
+              </TextRob12Font2Xs>
+            </Btn>
+          </Stack>
+        ) : (
+          <Box
             sx={{
-              borderRadius: "0px 8px 8px 0px",
-              padding: "0px",
-              backgroundColor: actionPause
-                ? theme[mode].blueMedium
-                : "transparent",
-              border: checkStatus(statusState, taskState?.action).isRunning
-                ? "1px solid"
-                : "0px solid",
-              borderColor: actionPause
-                ? theme[mode].blueMedium
-                : theme[mode].tertiary,
+              width: "100%",
+              height: "2px",
+              backgroundColor: theme[mode].blue,
+              borderRadius: "2px",
+              mt: "24px",
+              mb: "8px",
+              opacity: 0.6,
             }}
-          >
-            <TextRob12Font2Xs
-              sx={{
-                color: actionPause ? theme[mode].btnText : theme[mode].tertiary,
-                letterSpacing: "0.5px",
-                fontWeight: actionPause ? "500" : "400",
-                lineHeight: "22px",
-              }}
-            >
-              {t("home.stop")}
-            </TextRob12Font2Xs>
-          </Btn>
-        </Stack>
+          />
+        )}
         {/* Owner */}
         <Stack
           sx={{
@@ -390,22 +457,33 @@ export const VmCard = ({
             >
               {t("home.disk")}
             </TextRob16FontL>
-            <IconButton
-              onClick={() => setOpenModalSlider(true)}
-              sx={{
-                backgroundColor: theme[mode].grayLight,
-                flexDirection: "row",
-                padding: "0px 4px",
-                borderRadius: "4px",
-                marginRight: "-4px",
-                gap: "6px",
-                "&:hover": {
+            {currentUserRole !== "member" ? (
+              <IconButton
+                onClick={() => setOpenModalSlider(true)}
+                sx={{
                   backgroundColor: theme[mode].grayLight,
-                  opacity: 0.8,
-                },
-              }}
-            >
-              <PencilIcon fill={theme[mode].primary} />
+                  flexDirection: "row",
+                  padding: "0px 4px",
+                  borderRadius: "4px",
+                  marginRight: "-4px",
+                  gap: "6px",
+                  "&:hover": {
+                    backgroundColor: theme[mode].grayLight,
+                    opacity: 0.8,
+                  },
+                }}
+              >
+                <PencilIcon fill={theme[mode].primary} />
+                <TextRob16FontL
+                  sx={{
+                    fontWeight: "500",
+                    color: theme[mode].primary,
+                  }}
+                >
+                  {diskState}GB
+                </TextRob16FontL>
+              </IconButton>
+            ) : (
               <TextRob16FontL
                 sx={{
                   fontWeight: "500",
@@ -414,7 +492,7 @@ export const VmCard = ({
               >
                 {diskState}GB
               </TextRob16FontL>
-            </IconButton>
+            )}
           </Stack>
           <Divider
             sx={{
@@ -452,32 +530,142 @@ export const VmCard = ({
           </Stack>
         </Stack>
         {/* Caixa de confirmação */}
-        <Box
+        <Stack
           sx={{
             position: "absolute",
-            top: showConfirmation ? "0" : "-60px",
+            top: showConfirmation ? "0" : "-100%",
             left: 0,
             right: 0,
-            height: "25px",
-            backgroundColor: theme[mode].blueMedium,
-            display: "flex",
-            justifyContent: "space-between",
+            zIndex: 20,
+            backgroundColor: theme[mode].mainBackground,
+            borderBottomLeftRadius: "16px",
+            borderBottomRightRadius: "16px",
+            padding: "16px 12px",
+            justifyContent: "center",
             alignItems: "center",
-            padding: "0 16px",
-            transition: "bottom 0.9s ease-in-out",
-            borderTopLeftRadius: "8px",
-            borderTopRightRadius: "8px",
-
-            ...(!showConfirmation && { display: "none" }),
+            transition: "top 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+            gap: "12px",
+            boxShadow: showConfirmation ? `0px 4px 12px ${shadow(mode)}` : "none",
+            opacity: showConfirmation ? 1 : 0,
+            pointerEvents: showConfirmation ? "auto" : "none",
+            height: "auto",
+            minHeight: "100px",
           }}
         >
-          <Button onClick={handleCancel} sx={{}}>
-            <CloseIcon sx={{ color: theme[mode].red, fontSize: "14px" }} />
-          </Button>
-          <Button onClick={handleConfirm}>
-            <CheckIcon sx={{ color: theme[mode].blue, fontSize: "14px" }} />
-          </Button>
-        </Box>
+          <Stack spacing={1} width="100%" alignItems="center">
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <TextRob16FontL
+                sx={{
+                  fontWeight: "700",
+                  color: theme[mode].primary,
+                  textAlign: "center",
+                  fontSize: "12px",
+                  lineHeight: "14px",
+                  ...makeEllipsis(),
+                  maxWidth: "120px",
+                }}
+              >
+                {vmNameState}
+              </TextRob16FontL>
+              <Box
+                sx={{
+                  backgroundColor:
+                    preStatusState === "RUNNING"
+                      ? theme[mode].green
+                      : preStatusState === "PAUSED"
+                      ? theme[mode].blue
+                      : theme[mode].lightRed,
+                  borderRadius: "4px",
+                  padding: "2px 6px",
+                }}
+              >
+                <TextRob16FontL
+                  sx={{
+                    fontWeight: "500",
+                    color: "#FFF",
+                    fontSize: "10px",
+                    lineHeight: "12px",
+                  }}
+                >
+                  {getStatusText(preStatusState)}
+                </TextRob16FontL>
+              </Box>
+            </Stack>
+
+            <TextRob16FontL
+              sx={{
+                fontWeight: "400",
+                color: theme[mode].gray,
+                textAlign: "center",
+                fontSize: "11px",
+                lineHeight: "14px",
+              }}
+            >
+              {statusState === "RUNNING"
+                ? "Deseja iniciar a execução?"
+                : "Deseja parar a execução?"}
+            </TextRob16FontL>
+          </Stack>
+
+          <Stack
+            direction="row"
+            spacing={1}
+            width="100%"
+            justifyContent="center"
+          >
+            <Button
+              onClick={handleConfirm}
+              variant="contained"
+              fullWidth
+              sx={{
+                borderRadius: "6px",
+                textTransform: "none",
+                backgroundColor:
+                  statusState === "RUNNING"
+                    ? theme[mode].green
+                    : theme[mode].red,
+                color: "#FFF",
+                boxShadow: "none",
+                padding: "2px 8px",
+                fontSize: "12px",
+                minWidth: "unset",
+                "&:hover": {
+                  backgroundColor:
+                    statusState === "RUNNING"
+                      ? theme[mode].green
+                      : theme[mode].red,
+                  opacity: 0.9,
+                  boxShadow: "0px 2px 4px rgba(0,0,0,0.2)",
+                },
+              }}
+            >
+              {statusState === "RUNNING" ? "Executar" : "Parar"}
+            </Button>
+            <Button
+              onClick={handleCancel}
+              variant="outlined"
+              fullWidth
+              sx={{
+                borderRadius: "6px",
+                textTransform: "none",
+                borderColor: theme[mode].gray,
+                color: theme[mode].gray,
+                padding: "2px 8px",
+                fontSize: "12px",
+                minWidth: "unset",
+                borderWidth: "1px",
+                "&:hover": {
+                  borderColor: theme[mode].primary,
+                  color: theme[mode].primary,
+                  backgroundColor: "transparent",
+                  borderWidth: "1px",
+                },
+              }}
+            >
+              Cancelar
+            </Button>
+          </Stack>
+        </Stack>
         {/* Button Show charts */}
         <Stack
           sx={{
@@ -574,6 +762,7 @@ export const VmCard = ({
           )}
         </Stack>
       </Stack>
+      </ClickAwayListener>
       {/* Modais */}
       {openModal && (
         <ModalChangeValueInput

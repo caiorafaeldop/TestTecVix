@@ -18,8 +18,25 @@ import { PasswordValidations } from "./PasswordValidations";
 import { useZVMSugestion } from "../../../stores/useZVMSugestion";
 import { ENetworkType } from "../../../types/VMTypes";
 import { AbsoluteBackDrop } from "../../../components/AbsoluteBackDrop";
-import { BTNISOsSection } from "./BTNISOsSection";
 import { useZVM } from "../../../stores/useZVM";
+
+// Lista de sistemas operacionais disponíveis
+const osOptions = [
+  { label: "Ubuntu 22.04 LTS", value: "ubuntu-22.04" },
+  { label: "Ubuntu 20.04 LTS", value: "ubuntu-20.04" },
+  { label: "Debian 12", value: "debian-12" },
+  { label: "Debian 11", value: "debian-11" },
+  { label: "CentOS 9 Stream", value: "centos-9" },
+  { label: "Rocky Linux 9", value: "rocky-9" },
+  { label: "AlmaLinux 9", value: "alma-9" },
+  { label: "Windows Server 2022", value: "windows-server-2022" },
+  { label: "Windows Server 2019", value: "windows-server-2019" },
+  { label: "Windows 11 Pro", value: "windows-11" },
+  { label: "Windows 10 Pro", value: "windows-10" },
+  { label: "Fedora 39", value: "fedora-39" },
+  { label: "openSUSE Leap 15.5", value: "opensuse-15.5" },
+  { label: "Arch Linux", value: "arch-linux" },
+];
 
 export const FormVM = () => {
   const { t } = useTranslation(); // createVm
@@ -147,16 +164,16 @@ export const FormVM = () => {
         className="w-full"
         sx={{
           padding: "24px",
-          gap: "24px",
+          gap: "16px",
         }}
       >
         {/* Title */}
         <TextRob18Font2M
           sx={{
             color: theme[mode].black,
-            fontSize: "18px",
+            fontSize: "14px",
             fontWeight: "500",
-            lineHeight: "24px",
+            lineHeight: "18px",
           }}
         >
           {t("createVm.vmRegister")}
@@ -166,7 +183,7 @@ export const FormVM = () => {
         {/* User and password */}
         <Stack
           sx={{
-            gap: "24px",
+            gap: "8px",
             "@media (min-width: 660px)": {
               flexDirection: "row",
             },
@@ -197,6 +214,7 @@ export const FormVM = () => {
         <Divider
           sx={{
             borderColor: theme[mode].grayLight,
+            margin: "4px 0",
           }}
         />
         <LabelInputVM
@@ -206,14 +224,14 @@ export const FormVM = () => {
           placeholder={t("createVm.sampleName")}
           containerSx={{
             "@media (min-width: 660px)": {
-              maxWidth: "288px",
+              maxWidth: "100%",
             },
           }}
         />
         {/* Location and System */}
         <Stack
           sx={{
-            gap: "24px",
+            gap: "8px",
             "@media (min-width: 660px)": {
               flexDirection: "row",
             },
@@ -225,12 +243,18 @@ export const FormVM = () => {
             value={vmLocalization}
             onChange={setVmLocalization}
           />
-          <BTNISOsSection vmNameLabel={vmSO?.label} />
+          <DropDowText
+            label={t("createVm.operationalSystem")}
+            data={osOptions}
+            value={vmSO}
+            onChange={setVmSO}
+            placeholder={t("createVm.selectOS")}
+          />
         </Stack>
         {/* Sliders */}
         <Stack
           sx={{
-            gap: "24px",
+            gap: "8px",
             "@media (min-width: 660px)": {
               flexDirection: "row",
             },
@@ -262,7 +286,7 @@ export const FormVM = () => {
         {/* Advanced options */}
         <Stack
           sx={{
-            gap: "24px",
+            gap: "8px",
           }}
         >
           {/* Network Type */}
@@ -272,13 +296,13 @@ export const FormVM = () => {
             value={vmNetwork}
             onChange={(val) => setVmNetwork(val as TOptionsTyped<ENetworkType>)}
             sxContainer={{
-              maxWidth: "280px",
+              maxWidth: "100%",
             }}
           />
           {/* Items */}
           <Stack
             sx={{
-              gap: "24px",
+              gap: "8px",
               flexDirection: "row",
               width: "100%",
             }}
@@ -314,7 +338,7 @@ export const FormVM = () => {
             onClick={handleCancel}
             sx={{
               display: "none",
-              padding: "9px 24px",
+            padding: "6px 16px",
               backgroundColor: theme[mode].grayLight,
               borderRadius: "12px",
               "@media (min-width: 660px)": {
@@ -338,20 +362,18 @@ export const FormVM = () => {
             disabled={disabledBtn}
             onClick={() => setOpenConfirm(true)}
             sx={{
-              padding: "9px 24px",
-              backgroundColor: theme[mode].blue,
+              backgroundColor: theme[mode].btn,
               borderRadius: "12px",
-              "@media (min-width: 660px)": {
-                minWidth: "160px",
-              },
+              padding: "6px 16px",
+              minWidth: "140px",
             }}
           >
             <TextRob16Font1S
               sx={{
                 color: theme[mode].btnText,
-                fontSize: "16px",
+                fontSize: "14px",
                 fontWeight: "500",
-                lineHeight: "20px",
+                lineHeight: "16px",
               }}
             >
               {t("createVm.createBtn")}

@@ -143,6 +143,51 @@
             "null"
           ]
         },
+        "isStripeActive": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": false
+        },
+        "idBrandTheme": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "discountRate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "minConsumption": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "retailPercentageDefault": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "hasSelfRegister": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": false
+        },
+        "hasPrepaid": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": false
+        },
         "isPoc": {
           "type": [
             "boolean",
@@ -230,6 +275,24 @@
           ],
           "default": false
         },
+        "pass": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "location": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "BR_SAO_PAULO",
+            "US_EAST_N_VIRGINIA",
+            "US_WEST_N_CALIFORNIA",
+            "EU_WEST_IRELAND"
+          ]
+        },
         "status": {
           "type": [
             "string",
@@ -316,6 +379,18 @@
             "null"
           ],
           "default": true
+        },
+        "fullName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "userPhoneNumber": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "lastLoginDate": {
           "type": [

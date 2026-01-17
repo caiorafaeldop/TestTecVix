@@ -1,4 +1,4 @@
-import { BrandMasterModel } from "../../src/models/BrandMasterModel";
+import { BrandMasterModel } from "../../models/BrandMasterModel";
 import { prismaMock } from "../singleton";
 
 describe("BrandMasterModel", () => {

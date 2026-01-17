@@ -1,4 +1,4 @@
-import { querySchema } from "../../../src/types/validations/Queries/queryListAll";
+import { querySchema } from "../../../types/validations/Queries/queryListAll";
 
 describe("queryListAll", () => {
   it("should validate query", () => {

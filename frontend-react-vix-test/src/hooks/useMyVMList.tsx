@@ -19,25 +19,21 @@ export const useMyVMList = () => {
       idBrandMaster?: number | "null";
     } = {},
   ) => {
-    const auth = await getAuth();
+    // const auth = await getAuth();
     setIsLoading(true);
-    const response = await api.get<IListAll<IVMCreatedResponse>>({
-      url: "/vm",
-      auth,
+    const response = await api.get<IListAll<IVMCreatedResponse>>("/vm", {
       params: {
         ...params,
-        //status: "PAUSED", // "RUNNING", "STOPPED", "PAUSED", "null", undefined
       },
     });
 
     setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
-      return { totalCount: 0, vmList: [] };
-    }
+    // No response.error check needed for standard axios unless using a wrapper or interceptor that sets it. 
+    // Data is in response.data directly.
+    const data = response.data;
 
-    const vmList = response.data?.result;
-    const totalCount = parseInt(response.data?.totalCount?.toString());
+    const vmList = data?.result;
+    const totalCount = parseInt(data?.totalCount?.toString() || "0");
     return { totalCount, vmList };
   };
 

@@ -10,7 +10,7 @@ import { SugestionsCards } from "./components/SugestionsCards";
 import { ScreenFullPage } from "../../components/ScreenFullPage";
 import { useEffect } from "react";
 import { useZVM } from "../../stores/useZVM";
-import { CardMarketPlace } from "./components/CardMarketPlace";
+
 
 export const VirtualMachinePage = () => {
   const { theme, mode } = useZTheme();
@@ -30,9 +30,9 @@ export const VirtualMachinePage = () => {
         <TextRob20Font1MB
           sx={{
             color: theme[mode].primary,
-            fontSize: "28px",
+            fontSize: "20px",
             fontWeight: "500",
-            lineHeight: "40px",
+            lineHeight: "28px",
           }}
         >
           {t("createVm.createVm")}
@@ -42,9 +42,9 @@ export const VirtualMachinePage = () => {
         <TextRob12Font2Xs
           sx={{
             color: theme[mode].gray,
-            fontSize: "16px",
+            fontSize: "12px",
             fontWeight: "400",
-            lineHeight: "20px",
+            lineHeight: "16px",
           }}
         >
           {t("createVm.fillTheFields")}
@@ -64,14 +64,14 @@ export const VirtualMachinePage = () => {
           flexDirection={"row"}
           sx={{
             backgroundColor: theme[mode].mainBackground,
-            width: "82%",
+            width: "85%",
             height: "100%",
             borderRadius: "16px",
             boxShadow: `0px 4px 4px 0px ${shadow(mode)}`,
-            marginBottom: "24px",
+            marginBottom: "12px",
             "@media (min-width: 1431px)": {
               marginBottom: "0px",
-              maxWidth: "920px",
+              flex: 1, // Divide as colunas igualmente
             },
           }}
         >
@@ -81,26 +81,23 @@ export const VirtualMachinePage = () => {
         {/* IA modal card and sugestions */}
         <Stack
           sx={{
-            width: "82%",
-            marginBottom: "64px",
-            justifyContent: "center",
-            gap: "24px",
-            "@media (min-width: 955px)": {
-              maxWidth: "450px",
-            },
+            width: "85%",
+            marginBottom: "32px",
+            justifyContent: "flex-start",
+            gap: "12px",
             "@media (min-width: 1431px)": {
               marginBottom: "0px",
+              flex: 1, // Divide as colunas igualmente
+              maxWidth: "none",
             },
           }}
         >
           {/* Sugestions */}
           <Stack
             sx={{
-              display: "none",
               backgroundColor: theme[mode].mainBackground,
               boxShadow: `0px 4px 4px 0px ${shadow(mode)}`,
               borderRadius: "16px",
-              maxHeight: "530px",
               "@media (min-width: 1431px)": {
                 display: "block",
               },
@@ -114,30 +111,15 @@ export const VirtualMachinePage = () => {
             className=""
             flexDirection={"column"}
             sx={{
-              backgroundColor: theme[mode].black,
+              backgroundColor: theme[mode].lightV2,
               boxShadow: `0px 4px 4px 0px ${shadow(mode)}`,
+              border: `1px solid ${theme[mode].grayLight}`,
               borderRadius: "12px",
             }}
           >
             <CardCreateWithIA />
           </Stack>
-          {/* Market place card */}
-          <Stack
-            width="100%"
-            height="100%"
-            flexDirection="column"
-            sx={{
-              borderRadius: "12px",
-              boxShadow: `0px 4px 4px 0px ${shadow(mode)}`,
-              background: `
-      linear-gradient(90deg, ${theme[mode].black} 0%, ${theme[mode].blueMedium} 100%), /* fundo linear */
-      radial-gradient(ellipse at center, ${theme[mode].blue + "50"} 0%, ${theme[mode].blue} 100%) /* overlay tipo diamond */
-    `,
-              backgroundBlendMode: "normal, lighten",
-            }}
-          >
-            <CardMarketPlace />
-          </Stack>
+
         </Stack>
       </>
     </ScreenFullPage>

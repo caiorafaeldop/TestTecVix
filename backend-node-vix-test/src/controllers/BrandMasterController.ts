@@ -3,6 +3,7 @@ import { CustomRequest } from "../types/custom";
 import { BrandMasterService } from "../services/BrandMasterService";
 import { user } from "@prisma/client";
 import { STATUS_CODE } from "../constants/statusCode";
+import { AppError } from "../errors/AppError";
 
 export class BrandMasterController {
   constructor() {}
@@ -49,6 +50,18 @@ export class BrandMasterController {
     const result = await this.brandMasterService.deleteBrandMaster(
       Number(idBrandMaster),
       user,
+    );
+    return res.status(STATUS_CODE.OK).json(result);
+  }
+  async updateLogo(req: CustomRequest<unknown>, res: Response) {
+    const { idBrandMaster } = req.params;
+    if (!req.file) {
+      throw new AppError("No file uploaded", STATUS_CODE.BAD_REQUEST);
+    }
+    const logoPath = req.file.path.replace(/\\/g, "/");
+    const result = await this.brandMasterService.updateLogo(
+      Number(idBrandMaster),
+      logoPath,
     );
     return res.status(STATUS_CODE.OK).json(result);
   }
