@@ -1,17 +1,17 @@
 [
     {
         "idUser": "a1b2c3d4-e5f6-7890-abcd-111111111111",
-        "username": "Administrador",
-        "email": "admin@admin.com",
+        "username": "Administrador Vituax",
+        "email": "admin@vituax.com",
         "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
         "role": "admin",
-        "idBrandMaster": null,
+        "idBrandMaster": 1,
         "isActive": true
     },
     {
         "idUser": "a1b2c3d4-e5f6-7890-abcd-222222222222",
-        "username": "Gerente",
-        "email": "manager@test.com",
+        "username": "Gerente Vituax",
+        "email": "manager@vituax.com",
         "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
         "role": "manager",
         "idBrandMaster": 1,
@@ -19,8 +19,8 @@
     },
     {
         "idUser": "a1b2c3d4-e5f6-7890-abcd-333333333333",
-        "username": "Membro",
-        "email": "member@test.com",
+        "username": "Membro Vituax",
+        "email": "member@vituax.com",
         "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
         "role": "member",
         "idBrandMaster": 1,
@@ -42,6 +42,15 @@
         "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
         "role": "manager",
         "idBrandMaster": 2,
+        "isActive": true
+    },
+    {
+        "idUser": "b2c3d4e5-f6a7-8901-bcde-666666666666",
+        "username": "Usuario Teste",
+        "email": "usuario@example.com",
+        "password": "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+        "role": "admin",
+        "idBrandMaster": 1,
         "isActive": true
     }
 ]

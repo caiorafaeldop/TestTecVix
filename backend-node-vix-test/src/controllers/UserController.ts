@@ -44,4 +44,10 @@ export class UserController {
       const result = await this.userService.updateAvatar(idUser, avatarPath);
       return res.status(STATUS_CODE.OK).json(result);
   }
+
+  async getToken(req: Request, res: Response) {
+      const idUser = req.params.idUser as string;
+      const result = await this.userService.getToken(idUser);
+      return res.status(STATUS_CODE.OK).json(result);
+  }
 }

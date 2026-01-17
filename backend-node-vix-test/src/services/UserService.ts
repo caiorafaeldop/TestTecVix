@@ -1,6 +1,7 @@
 import { prisma } from "../database/client";
 import { AppError } from "../errors/AppError";
 import { STATUS_CODE } from "../constants/statusCode";
+import { genToken } from "../utils/jwt";
 import bcrypt from "bcryptjs";
 
 export class UserService {
@@ -14,6 +15,10 @@ export class UserService {
         idBrandMaster: true,
         isActive: true,
         lastLoginDate: true,
+        fullName: true,
+        userPhoneNumber: true,
+        updatedAt: true,
+        createdAt: true,
       },
     });
   }
@@ -59,6 +64,8 @@ export class UserService {
         password: hashedPassword,
         role: role || 'member',
         idBrandMaster: idBrandMaster ? Number(idBrandMaster) : null,
+        fullName: data.fullName,
+        userPhoneNumber: data.userPhoneNumber,
       },
     });
 
@@ -107,5 +114,18 @@ export class UserService {
 
     const { password: _, ...userWithoutPassword } = updatedUser;
     return userWithoutPassword;
+  }
+
+  async getToken(idUser: string) {
+    const user = await prisma.user.findUnique({ where: { idUser } });
+    if (!user) throw new AppError("User not found", STATUS_CODE.NOT_FOUND);
+
+    const token = genToken({
+      idUser: user.idUser,
+      role: user.role,
+      idBrandMaster: user.idBrandMaster,
+    });
+
+    return { token };
   }
 }

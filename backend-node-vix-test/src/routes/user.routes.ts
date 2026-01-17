@@ -33,4 +33,8 @@ userRoutes.patch(`${BASE_PATH}/:idUser/avatar`, authMiddleware, upload.single("a
     await userController.updateAvatar(req, res);
 });
 
+userRoutes.get(`${BASE_PATH}/token/:idUser`, authMiddleware, async (req, res) => {
+    await userController.getToken(req, res);
+});
+
 export { userRoutes };

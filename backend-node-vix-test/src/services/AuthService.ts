@@ -39,6 +39,12 @@ export class AuthService {
       idBrandMaster: user.idBrandMaster,
     });
 
+    // Update last login date
+    await prisma.user.update({
+      where: { idUser: user.idUser },
+      data: { lastLoginDate: new Date() }
+    });
+
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
 
@@ -49,7 +55,8 @@ export class AuthService {
   }
 
   async register(data: any) {
-    const { username, email, password, role, idBrandMaster } = data;
+    const { username, name, email, password, role, idBrandMaster } = data;
+    const finalUsername = username || name;
 
     const userExists = await prisma.user.findFirst({
       where: { email },
@@ -63,7 +70,7 @@ export class AuthService {
 
     const user = await prisma.user.create({
       data: {
-        username,
+        username: finalUsername,
         email,
         password: hashedPassword,
         role: role || "member",
