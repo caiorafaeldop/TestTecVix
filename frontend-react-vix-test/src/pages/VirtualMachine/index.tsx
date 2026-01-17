@@ -10,7 +10,7 @@ import { SugestionsCards } from "./components/SugestionsCards";
 import { ScreenFullPage } from "../../components/ScreenFullPage";
 import { useEffect } from "react";
 import { useZVM } from "../../stores/useZVM";
-import { CardMarketPlace } from "./components/CardMarketPlace";
+
 
 export const VirtualMachinePage = () => {
   const { theme, mode } = useZTheme();
@@ -119,23 +119,7 @@ export const VirtualMachinePage = () => {
           >
             <CardCreateWithIA />
           </Stack>
-          {/* Market place card */}
-          <Stack
-            width="100%"
-            height="100%"
-            flexDirection="column"
-            sx={{
-              borderRadius: "12px",
-              boxShadow: `0px 4px 4px 0px ${shadow(mode)}`,
-              background: `
-      linear-gradient(90deg, ${theme[mode].lightV2} 0%, ${theme[mode].blueMedium} 100%), /* fundo linear */
-      radial-gradient(ellipse at center, ${theme[mode].blue + "50"} 0%, ${theme[mode].blue} 100%) /* overlay tipo diamond */
-    `,
-              backgroundBlendMode: "normal, lighten",
-            }}
-          >
-            <CardMarketPlace />
-          </Stack>
+
         </Stack>
       </>
     </ScreenFullPage>
