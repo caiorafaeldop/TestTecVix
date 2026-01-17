@@ -1,103 +1,253 @@
-# Backend Node Api
+# 🚀 API Cloud - Backend Node.js
 
-## Getting started
+Sistema de gerenciamento de VMs (Máquinas Virtuais) com suporte a multi-tenant (White Label).
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## 📋 Índice
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- [Tecnologias](#-tecnologias)
+- [Pré-requisitos](#-pré-requisitos)
+- [Instalação](#-instalação)
+- [Variáveis de Ambiente](#-variáveis-de-ambiente)
+- [Executando o Projeto](#-executando-o-projeto)
+- [Documentação da API (Swagger)](#-documentação-da-api-swagger)
+- [Credenciais de Teste](#-credenciais-de-teste)
+- [Estrutura do Projeto](#-estrutura-do-projeto)
+- [Endpoints Principais](#-endpoints-principais)
+- [Roles e Permissões](#-roles-e-permissões)
 
-## Add your files
+## 🛠 Tecnologias
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+- **Node.js** - Runtime JavaScript
+- **Express** - Framework web
+- **TypeScript** - Superset tipado de JavaScript
+- **Prisma** - ORM para banco de dados
+- **PostgreSQL** - Banco de dados relacional
+- **JWT** - Autenticação via tokens
+- **Swagger** - Documentação da API
+- **Docker** - Containerização
+- **Jest** - Framework de testes
+
+## 📦 Pré-requisitos
+
+- Node.js 18+ 
+- npm ou yarn
+- Docker e Docker Compose (opcional, para rodar o banco de dados)
+- PostgreSQL (se não usar Docker)
+
+## 🔧 Instalação
+
+1. **Clone o repositório:**
+```bash
+git clone https://github.com/seu-usuario/backend-node-vix-test.git
+cd backend-node-vix-test
+```
+
+2. **Instale as dependências:**
+```bash
+npm install
+```
+
+3. **Configure as variáveis de ambiente:**
+```bash
+cp .env.example .env
+# Edite o arquivo .env com suas configurações
+```
+
+4. **Suba o banco de dados (Docker):**
+```bash
+npm run db:up
+```
+
+5. **Execute as migrações do Prisma:**
+```bash
+npx prisma migrate dev
+```
+
+6. **Popule o banco com dados iniciais (seed):**
+```bash
+npx prisma db seed
+```
+
+## 🔐 Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+# Servidor
+PORT=3001
+
+# Banco de Dados
+DATABASE_URL="postgresql://user:password@localhost:5432/api_cloud?schema=public"
+
+# JWT
+JWT_SECRET="sua-chave-secreta-aqui"
+JWT_EXPIRES_IN="7d"
+
+# Ambiente
+NODE_ENV="development"
+```
+
+## ▶️ Executando o Projeto
+
+### Desenvolvimento
+```bash
+npm run dev
+```
+
+### Produção
+```bash
+npm run build
+npm start
+```
+
+### Com Docker
+```bash
+npm run dc:up
+```
+
+## 📚 Documentação da API (Swagger)
+
+A documentação interativa da API está disponível em:
+
+### 🔗 **http://localhost:3001/docs**
+
+A documentação Swagger inclui:
+- ✅ Todos os endpoints da API
+- ✅ Schemas de request/response
+- ✅ Exemplos de uso
+- ✅ Autenticação JWT
+- ✅ Descrição de parâmetros e erros
+
+## 🔑 Credenciais de Teste
+
+Após rodar o seed (`npx prisma db seed`), as seguintes credenciais estarão disponíveis:
+
+| Usuário | Email | Senha | Role |
+|---------|-------|-------|------|
+| **Administrador** | admin@admin.com | password | admin |
+| **Gerente** | manager@test.com | password | manager |
+| **Membro** | member@test.com | password | member |
+| **Admin MSP Tech** | admin@msptech.com | password | admin |
+| **Manager Cloud Corp** | manager@cloudcorp.com | password | manager |
+
+> ⚠️ **Nota:** Todas as senhas de teste são `password`
+
+### Como usar:
+1. Acesse a documentação Swagger: http://localhost:3001/docs
+2. Execute o endpoint `POST /api/v1/auth/login` com as credenciais acima
+3. Copie o token retornado
+4. Clique em "Authorize" no Swagger e cole o token
+
+
+## 📁 Estrutura do Projeto
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/vituax1/backend-node-api.git
-git branch -M main
-git push -uf origin main
+src/
+├── auth/           # Configurações de autenticação
+├── constants/      # Constantes e enums
+├── controllers/    # Controllers das rotas
+├── database/       # Configuração do Prisma
+├── errors/         # Classes de erro customizadas
+├── middlewares/    # Middlewares Express
+├── models/         # DTOs e interfaces
+├── routes/         # Definição das rotas
+├── services/       # Regras de negócio
+├── socket/         # Configuração WebSocket
+├── swagger/        # Documentação Swagger
+├── types/          # Tipos TypeScript
+├── utils/          # Funções utilitárias
+├── app.ts          # Configuração do Express
+└── index.ts        # Ponto de entrada
 ```
 
-## Integrate with your tools
+## 🛣 Endpoints Principais
 
-- [ ] [Set up project integrations](https://gitlab.com/vituax1/backend-node-api/-/settings/integrations)
+### 🔐 Autenticação
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| POST | `/api/v1/auth/login` | Fazer login |
+| POST | `/api/v1/auth/register` | Registrar novo usuário |
 
-## Collaborate with your team
+### 👤 Usuários
+| Método | Endpoint | Descrição | Roles |
+|--------|----------|-----------|-------|
+| GET | `/api/v1/user` | Listar usuários | admin, manager |
+| GET | `/api/v1/user/:id` | Buscar por ID | autenticado |
+| POST | `/api/v1/user` | Criar usuário | admin, manager |
+| PUT | `/api/v1/user/:id` | Atualizar usuário | admin, manager |
+| DELETE | `/api/v1/user/:id` | Deletar usuário | admin |
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### 🏢 Organizações (BrandMaster/MSP)
+| Método | Endpoint | Descrição | Roles |
+|--------|----------|-----------|-------|
+| GET | `/api/v1/brand-master` | Listar organizações | autenticado |
+| GET | `/api/v1/brand-master/self` | Minha organização | autenticado |
+| GET | `/api/v1/brand-master/:id` | Buscar por ID | autenticado |
+| POST | `/api/v1/brand-master` | Criar organização | admin, manager |
+| PUT | `/api/v1/brand-master/:id` | Atualizar org. | admin, manager |
+| DELETE | `/api/v1/brand-master/:id` | Deletar org. | admin |
 
-## Test and Deploy
+### 💻 VMs (Máquinas Virtuais)
+| Método | Endpoint | Descrição | Roles |
+|--------|----------|-----------|-------|
+| GET | `/api/v1/vm` | Listar VMs | autenticado |
+| GET | `/api/v1/vm/:id` | Buscar por ID | autenticado |
+| POST | `/api/v1/vm` | Criar VM | admin, manager |
+| PUT | `/api/v1/vm/:id` | Atualizar VM | admin, manager |
+| DELETE | `/api/v1/vm/:id` | Deletar VM | admin |
 
-Use the built-in continuous integration in GitLab.
+## 👥 Roles e Permissões
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+| Role | Descrição | Permissões |
+|------|-----------|------------|
+| **admin** | Administrador | Acesso total |
+| **manager** | Gerente | CRUD de usuários e VMs |
+| **member** | Membro | Somente leitura |
+
+## 🧪 Testes
+
+```bash
+# Executar todos os testes
+npm test
+
+# Testes em modo watch
+npm run test:dev
+```
+
+## 📦 Scripts Disponíveis
+
+| Script | Descrição |
+|--------|-----------|
+| `npm run dev` | Servidor de desenvolvimento |
+| `npm run build` | Compilar para produção |
+| `npm start` | Executar build de produção |
+| `npm test` | Executar testes |
+| `npm run lint` | Verificar código |
+| `npm run lint:fix` | Corrigir problemas de lint |
+| `npm run format` | Formatar código |
+| `npm run db:up` | Subir banco com Docker |
+| `npm run db:down` | Parar banco Docker |
+| `npm run dc:up` | Subir app com Docker |
+| `npm run dc:down` | Parar app Docker |
+
+## 🐳 Docker
+
+### Banco de dados
+```bash
+npm run db:up    # Subir PostgreSQL
+npm run db:down  # Parar PostgreSQL
+```
+
+### Aplicação completa
+```bash
+npm run dc:up    # Subir API + Banco
+npm run dc:down  # Parar tudo
+```
+
+## 📄 Licença
+
+MIT License - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ---
 
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-
-Choose a self-explaining name for your project.
-
-## Description
-
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-
-Show your appreciation to those who have contributed to the project.
-
-## License
-
-For open source projects, say how it is licensed.
-
-## Project status
-
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Desenvolvido com ❤️ para o Teste Técnico VIX

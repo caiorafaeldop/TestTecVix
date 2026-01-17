@@ -1,6 +1,6 @@
 import request from "supertest";
-import { app } from "../../src/app";
-import { API_VERSION, ROOT_PATH } from "../../src/constants/basePathRoutes";
+import { app } from "../../app";
+import { API_VERSION, ROOT_PATH } from "../../constants/basePathRoutes";
 import { prismaMock } from "../singleton";
 import { VMListMock } from "../__mocks__/VMList";
 

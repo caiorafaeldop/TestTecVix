@@ -17,10 +17,10 @@ module.exports = {
   },
   verbose: true,
   clearMocks: true,
-  setupFilesAfterEnv: ["<rootDir>/__tests__/singleton.ts"],
+  setupFilesAfterEnv: ["<rootDir>/src/__tests__/singleton.ts"],
   testPathIgnorePatterns: [
-    "<rootDir>/__tests__/singleton.ts",
-    "<rootDir>/__tests__/__mocks__/",
+    "<rootDir>/src/__tests__/singleton.ts",
+    "<rootDir>/src/__tests__/__mocks__/",
   ],
   coverageThreshold: {
     global: {

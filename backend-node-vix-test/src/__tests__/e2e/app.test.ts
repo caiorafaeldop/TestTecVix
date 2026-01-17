@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app } from "../../src/app";
+import { app } from "../../app";
 
 describe("Testing API", () => {
   it("should return 200 root", async () => {
