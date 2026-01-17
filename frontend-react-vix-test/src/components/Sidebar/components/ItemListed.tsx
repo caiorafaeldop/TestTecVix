@@ -167,6 +167,12 @@ export const ItemListed = ({
                     color: item?.disabled
                       ? theme[mode].tertiary
                       : theme[mode].btnLightText,
+                    "& .MuiListItemText-primary": {
+                      fontSize: "14px",
+                      lineHeight: "1.2",
+                      whiteSpace: "pre-line",
+                      wordBreak: "break-word",
+                    },
                   }}
                 />
               </ListItemButton>

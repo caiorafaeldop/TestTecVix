@@ -15,9 +15,11 @@ import { ItemListed } from "./ItemListed";
 import { useZBrandInfo } from "../../../stores/useZBrandStore";
 import { UserCheckDone } from "../../../icons/UserCheckDone";
 import { CloudIcon } from "../../../icons/CloudIcon";
+import { useZUserProfile } from "../../../stores/useZUserProfile";
 
 export const ListItemSidebar = () => {
   const { mode, theme } = useZTheme();
+  const { role: currentUserRole } = useZUserProfile();
   const shadow =
     mode === "dark" ? "rgba(0, 0, 0, 0.4)" : "rgba(217, 217, 217, 0.4)";
 
@@ -35,8 +37,8 @@ export const ListItemSidebar = () => {
       className="flex-1"
       sx={{
         width: "100%",
-        maxWidth: "300px",
-        minWidth: "250px",
+        maxWidth: "240px",
+        minWidth: "200px",
         background: theme[mode].mainBackground,
         boxShadow: `1px 0px 8px 0 ${shadow}`,
         overflowY: "auto",
@@ -48,7 +50,7 @@ export const ListItemSidebar = () => {
           width: "100%",
           justifyContent: "center",
           alignItems: "center",
-          height: "88px",
+          height: "64px",
         }}
       >
         <LogoBrand />
@@ -67,12 +69,14 @@ export const ListItemSidebar = () => {
           handleSelect={(val) => handleSelect(val, "/")}
           selected={selected}
         />
-        <Item
-          icon={(props) => <PlusIcon {...props} />}
-          text={t("sidebar.newVM")}
-          handleSelect={(val) => handleSelect(val, "/virtual-machine")}
-          selected={selected}
-        />
+        {currentUserRole !== "member" && (
+          <Item
+            icon={(props) => <PlusIcon {...props} />}
+            text={t("sidebar.newVM")}
+            handleSelect={(val) => handleSelect(val, "/virtual-machine")}
+            selected={selected}
+          />
+        )}
         <Item
           icon={(props) => <CloudIcon {...props} />}
           text={t("sidebar.myVMs")}
@@ -93,8 +97,8 @@ export const ListItemSidebar = () => {
             },
             {
               text: t("sidebar.colaboratorRegister"),
-              path: "/colaborator-register",
-              isSelected: pathname === "/colaborator-register",
+              path: "/employee-register",
+              isSelected: pathname === "/employee-register",
               icon: (props) => <UserCheckDone {...props} />,
             },
           ]}

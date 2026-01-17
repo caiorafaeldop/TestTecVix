@@ -47,7 +47,7 @@ export const Header = () => {
           justifyContent: "space-between",
           flexDirection: "row",
           alignItems: "center",
-          padding: "16px 0px",
+          padding: "8px 0px",
           boxShadow: `0px 2px 16px -5px ${shadow}`,
           backgroundColor: theme[mode].mainBackground,
         }}
@@ -55,7 +55,7 @@ export const Header = () => {
         <Stack
           sx={{
             marginLeft: "24px",
-            "@media (min-width: 1431px)": {
+            "@media (min-width: 1101px)": {
               display: "none",
             },
           }}

@@ -64,55 +64,77 @@ export const ScreenFullPage = ({
           width={"100%"}
           sx={{
             alignItems: "center",
-            overflowY: "auto",
+            height: "100%",
+            overflow: "hidden",
           }}
         >
-          {/* Header  */}
           {width < 1000 ? (
-            <HeaderMobile
-              title={title}
-              subtitle={subtitle}
-              keepSubtitle={keepSubtitle}
-            />
+            <>
+              <HeaderMobile
+                title={title}
+                subtitle={subtitle}
+                keepSubtitle={keepSubtitle}
+              />
+              <Stack
+                sx={{
+                  width: "100%",
+                  flex: 1,
+                  overflowY: "auto",
+                  alignItems: "center",
+                  ...sxContainer,
+                }}
+              >
+                {children}
+              </Stack>
+            </>
           ) : (
             <>
               <Header />
-              {/* Title and subtitle */}
               <Stack
                 sx={{
-                  gap: "12px",
-                  paddingTop: "40px",
-                  paddingBottom: "24px",
                   width: "100%",
-                  ...sxTitleSubTitle,
+                  flex: 1,
+                  overflowY: "auto",
+                  alignItems: "center",
+                  paddingBottom: "20px",
                 }}
               >
-                {title}
-                {subtitle && subtitle}
+                {/* Title and subtitle */}
+                <Stack
+                  sx={{
+                    gap: "4px",
+                    paddingTop: "20px",
+                    paddingBottom: "12px",
+                    width: "100%",
+                    ...sxTitleSubTitle,
+                  }}
+                >
+                  {title}
+                  {subtitle && subtitle}
+                </Stack>
+
+                <Stack
+                  sx={{
+                    width: "100%",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    flex: 1,
+                    "@media (min-width: 1431px)": {
+                      flexDirection: "row",
+                      alignItems: "flex-start",
+                    gap: "12px",
+                    paddingLeft: "20px",
+                    paddingRight: "20px",
+                    justifyContent: "center",
+                    },
+                    ...sxContainer,
+                  }}
+                >
+                  {children}
+                </Stack>
               </Stack>
             </>
           )}
-
-          <Stack
-            sx={{
-              width: "100%",
-              alignItems: "center",
-              flexDirection: "column",
-              flex: 1,
-              "@media (min-width: 1431px)": {
-                paddingBottom: "40px",
-                flexDirection: "row",
-                alignItems: "flex-start",
-                gap: "24px",
-                paddingLeft: "40px",
-                paddingRight: "40px",
-                justifyContent: "center",
-              },
-              ...sxContainer,
-            }}
-          >
-            {children}
-          </Stack>
         </Stack>
       </Stack>
     </Screen>

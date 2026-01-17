@@ -10,7 +10,7 @@ export const WelcomeCards = () => {
     <Stack
       sx={{
         boxSizing: "border-box",
-        backgroundColor: theme[mode].light,
+        backgroundColor: theme[mode].mainBackground,
         padding: "8px 0",
         width: "100%",
         gap: "24px",
@@ -19,7 +19,7 @@ export const WelcomeCards = () => {
       <HeaderVMList />
       <Stack
         sx={{
-          backgroundColor: theme[mode].light,
+          backgroundColor: theme[mode].mainBackground,
           padding: "0 24px",
           width: "100%",
           gap: "24px",

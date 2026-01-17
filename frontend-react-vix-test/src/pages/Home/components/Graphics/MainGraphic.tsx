@@ -17,7 +17,24 @@ import { useZGlobalVar } from "../../../../stores/useZGlobalVar";
 import { IFormatData } from "../../../../types/socketType";
 
 export const MainGraphic = () => {
-  const [chartData] = useState<IFormatData[]>([]);
+  // Mocked CPU usage data
+  const [chartData] = useState<IFormatData[]>([
+    { time: "00:00", value: 25 },
+    { time: "00:05", value: 32 },
+    { time: "00:10", value: 28 },
+    { time: "00:15", value: 45 },
+    { time: "00:20", value: 52 },
+    { time: "00:25", value: 48 },
+    { time: "00:30", value: 65 },
+    { time: "00:35", value: 72 },
+    { time: "00:40", value: 68 },
+    { time: "00:45", value: 55 },
+    { time: "00:50", value: 42 },
+    { time: "00:55", value: 38 },
+    { time: "01:00", value: 45 },
+    { time: "01:05", value: 58 },
+    { time: "01:10", value: 62 },
+  ]);
   const { theme, mode } = useZTheme();
   const { t } = useTranslation();
 
