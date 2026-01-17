@@ -50,7 +50,7 @@ export const SliderLabelNum = ({
     <Stack
       sx={{
         width: "100%",
-        gap: "12px",
+        gap: "4px",
       }}
     >
       <TextRob16FontL
@@ -68,12 +68,12 @@ export const SliderLabelNum = ({
           flexDirection: "row",
           gap: "20px",
           backgroundColor: theme[mode].grayLight,
-          borderRadius: "12px",
-          height: "36px",
+           borderRadius: "12px",
+          height: "30px",
           alignItems: "center",
           justifyContent: "space-between",
-          paddingLeft: "20px",
-          paddingRight: "8px",
+          paddingLeft: "12px",
+          paddingRight: "4px",
         }}
       >
         <Slider
@@ -112,7 +112,8 @@ export const SliderLabelNum = ({
           onBlur={handleBlur}
           disableUnderline
           sx={{
-            width: "80px",
+            width: "60px",
+            fontSize: "12px",
             color: theme[mode].primary,
           }}
           inputProps={{

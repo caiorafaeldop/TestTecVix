@@ -30,13 +30,18 @@ export const CardSugestion = ({
       sx={{
         backgroundColor: theme[mode].light,
         border: `1px solid ${theme[mode].grayLightV2}`,
-        borderRadius: "8px",
-        height: "225px",
-        padding: "16px",
-        gap: "8px",
+        borderRadius: "16px",
+        height: "180px",
+        padding: "20px",
+        gap: "12px",
         width: "100%",
-        maxWidth: "200px",
+        maxWidth: "280px",
         justifyContent: "space-between",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          boxShadow: `0px 10px 20px 0px ${theme[mode].grayLight}`,
+          transform: "translateY(-4px)",
+        },
       }}
     >
       <Stack
@@ -48,10 +53,10 @@ export const CardSugestion = ({
           sx={{
             color: theme[mode].black,
             width: "100%",
-            fontSize: "14px",
+            fontSize: "16px",
             fontFamily: "Roboto",
-            fontWeight: "500",
-            lineHeight: "20px",
+            fontWeight: "600",
+            lineHeight: "22px",
             wordWrap: "break-word",
           }}
         >
@@ -61,9 +66,9 @@ export const CardSugestion = ({
         <TextRob12Font2Xs
           sx={{
             color: theme[mode].gray,
-            fontSize: "12px",
+            fontSize: "13px",
             fontWeight: "400",
-            lineHeight: "20px",
+            lineHeight: "18px",
           }}
         >
           {description}
@@ -87,33 +92,30 @@ export const CardSugestion = ({
         {cpu && (
           <Stack
             flexDirection={"row"}
-            gap={"8px"}
+            gap={"4px"}
             sx={{
-              backgroundColor: "transparent",
-              borderRadius: "4px",
-              width: "72px",
-              height: "20px",
+              backgroundColor: theme[mode].grayLightV2,
+              borderRadius: "6px",
+              height: "24px",
               alignItems: "center",
-              padding: "2px 4px",
-              border: `1px solid ${theme[mode].black}`,
+              padding: "0px 8px",
+              border: `1px solid ${theme[mode].grayLight}`,
             }}
           >
             <TextRob12Font2Xs
               sx={{
                 color: theme[mode].black,
-                fontSize: "14px",
+                fontSize: "11px",
                 fontWeight: "500",
-                lineHeight: "16px",
               }}
             >
-              {t("createVm.cpuSuggestion")}
+              {t("createVm.cpuSuggestion")}:
             </TextRob12Font2Xs>
             <TextRob12Font2Xs
               sx={{
                 color: theme[mode].black,
-                fontSize: "14px",
-                fontWeight: "500",
-                lineHeight: "16px",
+                fontSize: "12px",
+                fontWeight: "700",
               }}
             >
               {cpu}
@@ -124,36 +126,33 @@ export const CardSugestion = ({
         {ram && (
           <Stack
             flexDirection={"row"}
-            gap={"8px"}
+            gap={"4px"}
             sx={{
-              backgroundColor: "transparent",
-              borderRadius: "4px",
-              width: "72px",
-              height: "20px",
+              backgroundColor: theme[mode].grayLightV2,
+              borderRadius: "6px",
+              height: "24px",
               alignItems: "center",
-              padding: "2px 4px",
-              border: `1px solid ${theme[mode].black}`,
+              padding: "0px 8px",
+              border: `1px solid ${theme[mode].grayLight}`,
             }}
           >
             <TextRob12Font2Xs
               sx={{
                 color: theme[mode].black,
-                fontSize: "14px",
+                fontSize: "11px",
                 fontWeight: "500",
-                lineHeight: "16px",
               }}
             >
-              {t("createVm.ramSuggestion")}
+              {t("createVm.ramSuggestion")}:
             </TextRob12Font2Xs>
             <TextRob12Font2Xs
               sx={{
                 color: theme[mode].black,
-                fontSize: "14px",
-                fontWeight: "500",
-                lineHeight: "16px",
+                fontSize: "12px",
+                fontWeight: "700",
               }}
             >
-              {ram}
+              {ram}GB
             </TextRob12Font2Xs>
           </Stack>
         )}
@@ -161,36 +160,33 @@ export const CardSugestion = ({
         {disk && (
           <Stack
             flexDirection={"row"}
-            gap={"8px"}
+            gap={"4px"}
             sx={{
-              backgroundColor: "transparent",
-              borderRadius: "4px",
-              width: "72px",
-              height: "20px",
+              backgroundColor: theme[mode].grayLightV2,
+              borderRadius: "6px",
+              height: "24px",
               alignItems: "center",
-              padding: "2px 4px",
-              border: `1px solid ${theme[mode].black}`,
+              padding: "0px 8px",
+              border: `1px solid ${theme[mode].grayLight}`,
             }}
           >
             <TextRob12Font2Xs
               sx={{
                 color: theme[mode].black,
-                fontSize: "14px",
+                fontSize: "11px",
                 fontWeight: "500",
-                lineHeight: "16px",
               }}
             >
-              {t("home.disk")}
+              {t("home.disk")}:
             </TextRob12Font2Xs>
             <TextRob12Font2Xs
               sx={{
                 color: theme[mode].black,
-                fontSize: "14px",
-                fontWeight: "500",
-                lineHeight: "16px",
+                fontSize: "12px",
+                fontWeight: "700",
               }}
             >
-              {disk}
+              {disk}GB
             </TextRob12Font2Xs>
           </Stack>
         )}
@@ -200,23 +196,23 @@ export const CardSugestion = ({
         sx={{
           paddingLeft: "9px",
           paddingRight: "9px",
-          paddingTop: "12px",
-          paddingBottom: "12px",
+          paddingTop: "6px",
+          paddingBottom: "6px",
           borderRadius: "4px",
           border: "1px solid",
           borderColor: theme[mode].blueDark,
           justifyContent: "center",
           alignItems: "center",
           display: "inline-flex",
-          height: "40px",
+          height: "28px",
         }}
       >
         <TextRob14FontXsB
           sx={{
             color: theme[mode].blueDark,
-            fontSize: "14px",
-            fontWeight: "500",
-            lineHeight: "16px",
+            fontSize: "13px",
+            fontWeight: "600",
+            lineHeight: "14px",
           }}
         >
           {t("createVm.suggestionBtn")}

@@ -17,17 +17,17 @@ export const CardMarketPlace = () => {
     <Stack
       sx={{
         height: "fit-content",
-        padding: "24px",
-        gap: "8px",
+        padding: "8px",
+        gap: "4px",
         width: "100%",
       }}
     >
       <TextRob20Font1M
         sx={{
-          color: theme[mode].mainBackground,
-          fontSize: "20px",
+          color: theme[mode].primary,
+          fontSize: "12px",
           fontWeight: "500",
-          lineHeight: "24px",
+          lineHeight: "16px",
         }}
       >
         {t("isos.exploreMarketPlace")}
@@ -35,9 +35,9 @@ export const CardMarketPlace = () => {
       <TextRob12Font2Xs
         sx={{
           color: theme[mode].tertiary,
-          fontSize: "14px",
+          fontSize: "9px",
           fontWeight: "400",
-          lineHeight: "20px",
+          lineHeight: "12px",
         }}
       >
         {t("isos.marketPlaceInfos")}
@@ -59,8 +59,8 @@ export const CardMarketPlace = () => {
       >
         <TextRob16Font1S
           sx={{
-            color: theme[mode].mainBackground,
-            fontSize: "14px",
+            color: theme[mode].primary,
+            fontSize: "11px",
             fontWeight: "500",
             lineHeight: "16px",
             textDecoration: "underline",
@@ -68,7 +68,7 @@ export const CardMarketPlace = () => {
         >
           {t("isos.seeAvailable")}
         </TextRob16Font1S>
-        <ArrowRightIcon fill={theme[mode].mainBackground} />
+        <ArrowRightIcon fill={theme[mode].primary} />
       </Btn>
     </Stack>
   );

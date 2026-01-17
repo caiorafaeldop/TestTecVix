@@ -14,20 +14,24 @@ export const useUploadFile = () => {
     formData.append("file", file);
 
     setIsUploading(true);
-    const response = await api.post<{ objectName: string; url: string }>({
-      url: "/upload/file",
-      data: formData,
-      timeout: 120000,
-      auth: { ...auth, "Content-Type": "multipart/form-data" },
-    });
-    setIsUploading(false);
-
-    if (response.error) {
-      toast.error(response.message);
+    try {
+      const response = await api.post<{ objectName: string; url: string }>(
+        "/uploads",
+        formData,
+        {
+          timeout: 120000,
+          headers: { ...auth, "Content-Type": "multipart/form-data" },
+        },
+      );
+      return response.data;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Erro ao fazer upload");
       return { url: "", objectName: "" };
+    } finally {
+      setIsUploading(false);
     }
 
-    return response.data;
+
   };
 
   // Função para fazer upload do arquivo
@@ -43,21 +47,27 @@ export const useUploadFile = () => {
     if (
       objectName.includes("https://") ||
       objectName.includes("http://") ||
-      objectName.includes("/assets")
+      objectName.includes("/assets") ||
+      objectName.includes("blob:")
     )
       return { url: objectName };
     setIsLoading(true);
-    const url = objectName[0] === "/" ? objectName.slice(1) : objectName;
-    const response = await api.get<{ url: string }>({
-      url: `/upload/file/${url}`,
-      auth: {},
-    });
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
-      return { url: "" };
+    let urlParam = objectName[0] === "/" ? objectName.slice(1) : objectName;
+    if (urlParam.startsWith("uploads/")) {
+      urlParam = urlParam.replace("uploads/", "");
     }
-    return { url: response.data?.url || "" };
+    try {
+      const response = await api.get<{ url: string }>(
+        `/uploads/${urlParam}`,
+      );
+      return { url: response.data?.url || "" };
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Erro ao buscar arquivo");
+      return { url: "" };
+    } finally {
+      setIsLoading(false);
+    }
+
   };
 
   return { handleUpload, isUploading, getFileByObjectName, isLoading };

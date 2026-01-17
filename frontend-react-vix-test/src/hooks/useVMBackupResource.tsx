@@ -16,57 +16,55 @@ export const useVMBackupResource = () => {
     params: IParams = {},
   ) => {
     const auth = await getAuth();
-    setIsLoading(true);
-    const response = await api.get<IListAll<IVMBackup>>({
-      url: "/vm-backup",
-      auth,
-      params: {
-        ...params,
-        idVM,
-      },
-    });
-
-    setIsLoading(false);
-    if (response.error) {
-      toast.error(response.message);
-      return { totalCount: 0, vmList: [] };
+    try {
+      const response = await api.get<IListAll<IVMBackup>>("/vm-backup", {
+        headers: auth,
+        params: {
+          ...params,
+          idVM,
+        },
+      });
+      const backups = response.data?.result;
+      const totalCount = parseInt(response.data?.totalCount?.toString());
+      return { totalCount, backups };
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Erro ao listar backups");
+      return { totalCount: 0, backups: [] };
+    } finally {
+      setIsLoading(false);
     }
-
-    const backups = response.data?.result;
-    const totalCount = parseInt(response.data?.totalCount?.toString());
-    return { totalCount, backups };
   };
 
   const restoreThisBackup = async (idVMBackup: number) => {
     const auth = await getAuth();
-    setIsLoadingUpdate(true);
-    const response = await api.put<IVMBackup>({
-      url: `/vm-backup/restore/${idVMBackup}`,
-      auth,
-      data: { isRestored: true },
-    });
-    setIsLoadingUpdate(false);
-    if (response.error) {
-      toast.error(response.message);
-      return;
+    try {
+      const response = await api.put<IVMBackup>(
+        `/vm-backup/restore/${idVMBackup}`,
+        { isRestored: true },
+        { headers: auth },
+      );
+      return response.data;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Erro ao restaurar backup");
+    } finally {
+      setIsLoadingUpdate(false);
     }
-    return response.data;
   };
 
   const createBackup = async (idVM: number) => {
     const auth = await getAuth();
-    setIsLoadingCreate(true);
-    const response = await api.post<IVMBackup>({
-      url: `/vm-backup`,
-      auth,
-      data: { idVM },
-    });
-    setIsLoadingCreate(false);
-    if (response.error) {
-      toast.error(response.message);
-      return;
+    try {
+      const response = await api.post<IVMBackup>(
+        `/vm-backup`,
+        { idVM },
+        { headers: auth },
+      );
+      return response.data;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Erro ao criar backup");
+    } finally {
+      setIsLoadingCreate(false);
     }
-    return response.data;
   };
 
   return {

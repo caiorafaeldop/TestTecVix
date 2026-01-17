@@ -18,17 +18,17 @@ export const CardCreateWithIA = () => {
       <Stack
         sx={{
           height: "fit-content",
-          padding: "24px",
-          gap: "12px",
+          padding: "8px",
+          gap: "4px",
           width: "100%",
         }}
       >
         <TextRob20Font1M
           sx={{
-            color: theme[mode].mainBackground,
-            fontSize: "20px",
+            color: theme[mode].primary,
+            fontSize: "12px",
             fontWeight: "500",
-            lineHeight: "24px",
+            lineHeight: "16px",
           }}
         >
           {t("createVm.createWithIa")}
@@ -36,9 +36,9 @@ export const CardCreateWithIA = () => {
         <TextRob12Font2Xs
           sx={{
             color: theme[mode].grayLight,
-            fontSize: "14px",
+            fontSize: "9px",
             fontWeight: "400",
-            lineHeight: "20px",
+            lineHeight: "12px",
           }}
         >
           {t("createVm.needHelp")}
@@ -47,7 +47,7 @@ export const CardCreateWithIA = () => {
         <Btn
           onClick={() => setOpenModal(true)}
           sx={{
-            padding: "9px 24px",
+            padding: "6px 12px",
             backgroundColor: "transparent",
             borderRadius: "12px",
             height: "40px",
@@ -58,9 +58,9 @@ export const CardCreateWithIA = () => {
           <TextRob16Font1S
             sx={{
               color: theme[mode].blueLight,
-              fontSize: "14px",
+              fontSize: "12px",
               fontWeight: "500",
-              lineHeight: "16px",
+              lineHeight: "14px",
             }}
           >
             {t("createVm.createWithIaBtn")}

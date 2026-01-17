@@ -1,4 +1,4 @@
-import { IconButton, Stack, Typography } from "@mui/material";
+import { Box, IconButton, Stack, Typography } from "@mui/material";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import React, { useEffect } from "react";
@@ -23,6 +23,7 @@ import { StopCircleIcon } from "../../../../icons/StopCircleIcon";
 import { ModalStartVM } from "../ModalStartVM";
 import { ModalStopVM } from "../ModalStopVM";
 import { useStatusInfo } from "../../../../hooks/useStatusInfo";
+import { useZUserProfile } from "../../../../stores/useZUserProfile";
 
 interface IProps {
   vm: IVMCreatedResponse;
@@ -31,12 +32,14 @@ interface IProps {
 
 export const RowVM = ({ vm, index }: IProps) => {
   const { mode, theme } = useZTheme();
+  const { role: currentUserRole } = useZUserProfile();
   const [row, setRow] = React.useState<IVMCreatedResponse>(vm);
   const [vmIDToStop, setVmIDToStop] = React.useState<number>(0);
   const [vmIDToStart, setVmIDToStart] = React.useState<number>(0);
-  const { currentVM, setCurrentVM } = useZMyVMsList();
+  const { currentVM, setCurrentVM, updateVMInList } = useZMyVMsList();
   const { getStatus } = useStatusInfo();
-  const { getOS, getVMById, isLoading: isLoadingVm } = useVmResource();
+  const { getOS, getVMById, updateVMStatus, isLoading: isLoadingVm } =
+    useVmResource();
 
   const idVM: number = Number(row.idVM);
   const labelId = `enhanced-table-checkbox-${index}`;
@@ -49,10 +52,29 @@ export const RowVM = ({ vm, index }: IProps) => {
   };
 
   const handleConfirVMStatusChange = async () => {
-    const updatedVM = await getVMById(vmIDToStop || vmIDToStart);
-    if (updatedVM) {
-      setRow(updatedVM);
+    let newStatus: "RUNNING" | "STOPPED" | "PAUSED" | null = null;
+    let targetId = 0;
+
+    if (vmIDToStop) {
+      newStatus = "STOPPED";
+      targetId = vmIDToStop;
+    } else if (vmIDToStart) {
+      newStatus = "RUNNING";
+      targetId = vmIDToStart;
     }
+
+    if (newStatus && targetId) {
+      const updatedVM = await updateVMStatus({
+        idVM: targetId,
+        status: newStatus,
+      });
+
+      if (updatedVM) {
+        setRow(updatedVM);
+        updateVMInList(updatedVM);
+      }
+    }
+
     setVmIDToStop(0);
     setVmIDToStart(0);
   };
@@ -380,40 +402,54 @@ export const RowVM = ({ vm, index }: IProps) => {
               },
             }}
           >
-            {getStatus(row).isRunning && (
-              <IconButton
-                disabled={row.status === "STOPPED" || row.status === null}
-                onClick={() => setVmIDToStop(row.idVM)}
+            {currentUserRole !== "member" ? (
+              <>
+                {getStatus(row).isRunning && (
+                  <IconButton
+                    disabled={row.status === "STOPPED" || row.status === null}
+                    onClick={() => setVmIDToStop(row.idVM)}
+                    sx={{
+                      gap: "8px",
+                      ":hover": { opacity: 0.8 },
+                      ":disabled": { opacity: 0.5 },
+                    }}
+                  >
+                    <StopCircleIcon fill={theme[mode].lightRed} />
+                  </IconButton>
+                )}
+                {getStatus(row).isStopped && (
+                  <IconButton
+                    disabled={row.status === "RUNNING" || row.status === null}
+                    onClick={() => setVmIDToStart(row.idVM)}
+                    sx={{
+                      gap: "8px",
+                      ":hover": { opacity: 0.8 },
+                      ":disabled": { opacity: 0.5 },
+                    }}
+                  >
+                    <PlayCircleIcon fill={theme[mode].greenLight} />
+                  </IconButton>
+                )}
+                <Btn
+                  onClick={() => handleClick(row)}
+                  sx={{
+                    borderRadius: "50%",
+                  }}
+                >
+                  <PencilCicleIcon fill={theme[mode].blueMedium} />
+                </Btn>
+              </>
+            ) : (
+              <Stack
                 sx={{
-                  gap: "8px",
-                  ":hover": { opacity: 0.8 },
-                  ":disabled": { opacity: 0.5 },
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  backgroundColor: theme[mode].blue,
+                  opacity: 0.5,
                 }}
-              >
-                <StopCircleIcon fill={theme[mode].lightRed} />
-              </IconButton>
+              />
             )}
-            {getStatus(row).isStopped && (
-              <IconButton
-                disabled={row.status === "RUNNING" || row.status === null}
-                onClick={() => setVmIDToStart(row.idVM)}
-                sx={{
-                  gap: "8px",
-                  ":hover": { opacity: 0.8 },
-                  ":disabled": { opacity: 0.5 },
-                }}
-              >
-                <PlayCircleIcon fill={theme[mode].greenLight} />
-              </IconButton>
-            )}
-            <Btn
-              onClick={() => handleClick(row)}
-              sx={{
-                borderRadius: "50%",
-              }}
-            >
-              <PencilCicleIcon fill={theme[mode].blueMedium} />
-            </Btn>
           </Stack>
         </TableCell>
       </TableRow>

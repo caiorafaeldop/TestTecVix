@@ -164,16 +164,16 @@ export const FormVM = () => {
         className="w-full"
         sx={{
           padding: "24px",
-          gap: "24px",
+          gap: "16px",
         }}
       >
         {/* Title */}
         <TextRob18Font2M
           sx={{
             color: theme[mode].black,
-            fontSize: "18px",
+            fontSize: "14px",
             fontWeight: "500",
-            lineHeight: "24px",
+            lineHeight: "18px",
           }}
         >
           {t("createVm.vmRegister")}
@@ -183,7 +183,7 @@ export const FormVM = () => {
         {/* User and password */}
         <Stack
           sx={{
-            gap: "24px",
+            gap: "8px",
             "@media (min-width: 660px)": {
               flexDirection: "row",
             },
@@ -214,6 +214,7 @@ export const FormVM = () => {
         <Divider
           sx={{
             borderColor: theme[mode].grayLight,
+            margin: "4px 0",
           }}
         />
         <LabelInputVM
@@ -223,14 +224,14 @@ export const FormVM = () => {
           placeholder={t("createVm.sampleName")}
           containerSx={{
             "@media (min-width: 660px)": {
-              maxWidth: "288px",
+              maxWidth: "100%",
             },
           }}
         />
         {/* Location and System */}
         <Stack
           sx={{
-            gap: "24px",
+            gap: "8px",
             "@media (min-width: 660px)": {
               flexDirection: "row",
             },
@@ -253,7 +254,7 @@ export const FormVM = () => {
         {/* Sliders */}
         <Stack
           sx={{
-            gap: "24px",
+            gap: "8px",
             "@media (min-width: 660px)": {
               flexDirection: "row",
             },
@@ -285,7 +286,7 @@ export const FormVM = () => {
         {/* Advanced options */}
         <Stack
           sx={{
-            gap: "24px",
+            gap: "8px",
           }}
         >
           {/* Network Type */}
@@ -295,13 +296,13 @@ export const FormVM = () => {
             value={vmNetwork}
             onChange={(val) => setVmNetwork(val as TOptionsTyped<ENetworkType>)}
             sxContainer={{
-              maxWidth: "280px",
+              maxWidth: "100%",
             }}
           />
           {/* Items */}
           <Stack
             sx={{
-              gap: "24px",
+              gap: "8px",
               flexDirection: "row",
               width: "100%",
             }}
@@ -337,7 +338,7 @@ export const FormVM = () => {
             onClick={handleCancel}
             sx={{
               display: "none",
-              padding: "9px 24px",
+            padding: "6px 16px",
               backgroundColor: theme[mode].grayLight,
               borderRadius: "12px",
               "@media (min-width: 660px)": {
@@ -361,20 +362,18 @@ export const FormVM = () => {
             disabled={disabledBtn}
             onClick={() => setOpenConfirm(true)}
             sx={{
-              padding: "9px 24px",
-              backgroundColor: theme[mode].blue,
+              backgroundColor: theme[mode].btn,
               borderRadius: "12px",
-              "@media (min-width: 660px)": {
-                minWidth: "160px",
-              },
+              padding: "6px 16px",
+              minWidth: "140px",
             }}
           >
             <TextRob16Font1S
               sx={{
                 color: theme[mode].btnText,
-                fontSize: "16px",
+                fontSize: "14px",
                 fontWeight: "500",
-                lineHeight: "20px",
+                lineHeight: "16px",
               }}
             >
               {t("createVm.createBtn")}

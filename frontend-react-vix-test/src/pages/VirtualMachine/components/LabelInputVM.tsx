@@ -48,7 +48,7 @@ export const LabelInputVM = ({
       sx={{
         alignItems: "flex-start",
         width: "100%",
-        gap: "12px",
+        gap: "4px",
         position: "relative",
         ...containerSx,
       }}
@@ -87,7 +87,8 @@ export const LabelInputVM = ({
           ".MuiInputBase-input": {
             padding: "4px 8px",
             paddingLeft: "16px",
-            height: "32px",
+            height: "28px",
+            fontSize: "12px",
             color: theme[mode].primary,
             ...(type === "password" && { paddingRight: "40px" }),
             "&::placeholder": {
@@ -113,7 +114,7 @@ export const LabelInputVM = ({
             height: "28px",
             position: "absolute",
             right: "8px",
-            top: "36px",
+            top: "26px",
           }}
         >
           <IconButton

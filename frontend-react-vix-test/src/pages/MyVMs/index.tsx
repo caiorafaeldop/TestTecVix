@@ -42,12 +42,24 @@ export const MyVMsPage = () => {
   const { socketRef } = useZGlobalVar();
 
   const handlerFetchVMList = async (page: number = 0) => {
+    // Determinar qual idBrandMaster usar para filtrar:
+    // 1. Se selectedMSP está selecionado, usa o idBrandMaster do MSP selecionado
+    // 2. Se onlyMyVMs está ativo, usa o idBrand do usuário logado
+    // 3. Caso contrário, não filtra por BrandMaster (mostra todas as VMs)
+    let filterIdBrandMaster: number | "null" | undefined = undefined;
+    
+    if (selectedMSP?.idBrandMaster) {
+      filterIdBrandMaster = selectedMSP.idBrandMaster;
+    } else if (onlyMyVMs && idBrand) {
+      filterIdBrandMaster = idBrand;
+    }
+
     const { totalCount, vmList } = await fetchMyVmsList({
       search,
       page: page || currentPage - 1 || 0,
       orderBy: orderBy ? `${orderBy}:${order}` : undefined,
       limit,
-      idBrandMaster: idBrand,
+      idBrandMaster: filterIdBrandMaster,
       status,
     });
     setVMList(vmList);

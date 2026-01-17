@@ -31,28 +31,27 @@ export const Header = () => {
   const { getAuth } = useAuth();
 
   const fetchMSPs = async () => {
-    const auth = await getAuth();
-    const response = await api.get<
-      IListAll<{
-        idBrandMaster: number;
-        brandName: string;
-        deletedAt: Date | string | null;
-      }>
-    >({
-      url: `/brand-master`,
-      auth,
-      params: {
-        orderBy: "deletedAt:asc,brandName:asc",
-      },
-    });
-    if (response.error) {
+    try {
+      const response = await api.get<
+        IListAll<{
+          idBrandMaster: number;
+          brandName: string;
+          deletedAt: Date | string | null;
+        }>
+      >(`/brand-master`, {
+        params: {
+          orderBy: "deletedAt:asc,brandName:asc",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar MSPs:", error);
       return {
         result: [],
         totalCount: 0,
       };
     }
-
-    return response.data;
   };
 
   useEffect(() => {
